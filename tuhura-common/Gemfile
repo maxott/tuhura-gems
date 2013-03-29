@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+
+#gem 'thread'
+gemspec
+gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'

@@ -1,0 +1,6 @@
+source "http://rubygems.org"
+
+gemspec
+gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'
+gem 'tuhura-common', '0.0.1', path: File.join(File.dirname(__FILE__), '../common')
