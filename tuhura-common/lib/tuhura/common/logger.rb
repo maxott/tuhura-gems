@@ -8,14 +8,17 @@ module Tuhura::Common
   module Logger
     LOGGER_OPTS = {
       tracing: true,
-      level: :debug
+      level: :debug,
+      log4j_config: 'log4j.properties'
     }
     
     
     def logger_init(name = nil, opts = LOGGER_OPTS)
       require 'java'
       require 'log4j'
-      org.apache.log4j.PropertyConfigurator.configure('log4j.properties');
+      if log4j_config = opts[:log4j_config]
+        org.apache.log4j.PropertyConfigurator.configure(log4j_config)
+      end
 
       require 'log4jruby'
       self.class.enable_logger
