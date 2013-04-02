@@ -16,7 +16,7 @@ module Tuhura::OmfRc
     property :target_state, :default => :undefined   # state to aspire to 
     property :script_path, :default => nil
     property :script_args, :default => nil
-    property :use_oml, :default => false
+    property :oml_url, :default => 'tcp:oml.incmg.net:3004'
 
     VALID_TARGET_STATES = [:running, :stopped]
     
@@ -30,17 +30,16 @@ module Tuhura::OmfRc
       end
     end
     
-    configure :package do |res, value|
-      puts "PACKAGE: #{value}"
-      res.property.package = value
-    end
-
-    configure :script_path do |res, value|
-      res.property.script_path= value
-    end
+    # configure :package do |res, value|
+      # puts "PACKAGE: #{value}"
+      # res.property.package = value
+    # end
+# 
+    # configure :script_path do |res, value|
+      # res.property.script_path= value
+    # end
     
     configure :target_state do |res, value|
-      puts "NEW TARGET: #{res.property.target_state} => #{value}"
             
       value = value.to_s.downcase.to_sym
       return value if res.property.target_state == value
@@ -98,7 +97,9 @@ module Tuhura::OmfRc
                 res.change_state :installing
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
                 Dir.mkdir(@tmpdir)
-                `cd #{@tmpdir}; tar zxf #{state[:path]}; rvm jruby exec bundle package 2>&1`
+                cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; rvm jruby exec bundle package 2>&1"
+                debug "Executing '#{cmd}'"
+                `#{cmd}`
                 unless $?.success?
                   res.inform_error "Can't unpack package (#{$?})"
                 else
@@ -110,7 +111,8 @@ module Tuhura::OmfRc
               end
             end
           end
-          
+        else  
+          res.inform_error "Do not support download mechanism '#{type}'"
         end
       else
         res.inform_error "Can't parse package URL '#{pkg}'. Expected 'type:id'."
@@ -118,9 +120,10 @@ module Tuhura::OmfRc
     end
     
     work 'change_state' do |res, value|
-      puts ">>>> Changing state to #{value}"
+      #puts ">>>> Changing state to #{value}"
+      debug "Changing state to #{value}"
       res.property.state = value
-      res.inform :status, {state: value}
+      res.inform :status, {state: value, target_state: res.property.target_state}, :ALL
     end
     
     # Swich this Application RP into the 'stopped' state
@@ -159,9 +162,13 @@ module Tuhura::OmfRc
       if script.nil?
         res.inform_warn "Property 'script_path' not set! No idea what to run!"
       else
-        puts "Running #{@tmpdir}/#{script}"
+        #puts "#{script} #{res.property.script_args} "
         #cmd = "cd #{@tmpdir}; rvm jruby exec bundle exec ruby #{script}"
-        cmd = "rvm jruby exec bundle exec ruby #{script}"
+        args = res.property.script_args
+        if oml_url = res.property.oml_url
+          args += " --oml-collect #{oml_url}"
+        end
+        cmd = "rvm jruby exec bundle exec ruby #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
           res.process_event(event_type, msg)
