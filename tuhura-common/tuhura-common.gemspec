@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{tuhura-common!}
   
-  s.add_runtime_dependency 'kafka-rb', "~> 0.0"
+  s.add_runtime_dependency 'kafka-rb' #, "~> 0.0"
   s.add_runtime_dependency 'hbase-jruby', "~> 0.2"
   s.add_runtime_dependency 'log4jruby', "~> 0.5"
   s.add_runtime_dependency 'zookeeper', "~> 1.4"
