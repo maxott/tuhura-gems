@@ -99,13 +99,16 @@ module Tuhura::OmfRc
                 Dir.mkdir(@tmpdir)
                 cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
                 debug "Executing '#{cmd}'"
-                res = `#{cmd}`
-                unless $?.success?
-                  res.inform_error "Can't unpack and install package (#{res})"
-                else
-                  res.change_state :installed
-                  res.aim
+                ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
+                  debug "#{event_type}:: #{msg}"
                 end
+                
+                # unless $?.success?
+                  # res.inform_error "Can't unpack and install package (#{res})"
+                # else
+                  # res.change_state :installed
+                  # res.aim
+                # end
               else
                 res.inform_error "Do not support package mime-type '#{state[:mime_type]}'"
               end
