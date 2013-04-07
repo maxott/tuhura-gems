@@ -97,11 +97,11 @@ module Tuhura::OmfRc
                 res.change_state :installing
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
                 Dir.mkdir(@tmpdir)
-                cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; rvm jruby exec bundle package 2>&1"
+                cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
                 debug "Executing '#{cmd}'"
-                `#{cmd}`
+                res = `#{cmd}`
                 unless $?.success?
-                  res.inform_error "Can't unpack package (#{$?})"
+                  res.inform_error "Can't unpack and install package (#{res})"
                 else
                   res.change_state :installed
                   res.aim
@@ -168,7 +168,7 @@ module Tuhura::OmfRc
         if oml_url = res.property.oml_url
           args += " --oml-collect #{oml_url}"
         end
-        cmd = "rvm jruby exec bundle exec ruby #{script} #{args}"
+        cmd = "/usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
           res.process_event(event_type, msg)
