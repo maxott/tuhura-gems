@@ -12,4 +12,5 @@ mkdir $TMP_DIR
 cd $TMP_DIR
 tar zxf $TAR_FILE
 source /usr/local/rvm/environments/$RUBY_VER
+gem install bundler
 bundle package --all
