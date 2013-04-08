@@ -187,7 +187,7 @@ module Tuhura::OmfRc
     end
     
     work 'process_event' do |res, event_type, msg|
-      puts "#{event_type}>>>> #{msg}"
+      debug "#{event_type}:: #{msg}"
     end
   end
 end
