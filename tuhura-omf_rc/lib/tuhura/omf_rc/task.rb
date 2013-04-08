@@ -102,6 +102,11 @@ module Tuhura::OmfRc
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
                   debug "#{event_type}:: #{msg}"
+                  if event_type == 'DONE.OK'
+                    debug "DONE"
+                    res.change_state :installed
+                    res.aim
+                  end
                 end
                 
                 # unless $?.success?
@@ -172,7 +177,7 @@ module Tuhura::OmfRc
         if oml_url = res.property.oml_url
           args += " --oml-collect #{oml_url}"
         end
-        cmd = "/usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{script} #{args}"
+        cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
           res.process_event(event_type, msg)
