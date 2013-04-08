@@ -97,7 +97,8 @@ module Tuhura::OmfRc
                 res.change_state :installing
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
                 Dir.mkdir(@tmpdir)
-                cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
+                #cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
+                cmd = "bash -x #{File.dirname(__FILE__)}/../../sbin/prepare_task.sh 2>&1"
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
                   debug "#{event_type}:: #{msg}"
