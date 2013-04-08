@@ -10,6 +10,6 @@ RUBY_VER=$3
 
 mkdir $TMP_DIR
 cd $TMP_DIR
-tar zxf #$TAR_FILE
+tar zxf $TAR_FILE
 source /usr/local/rvm/environments/$RUBY_VER
 bundle package --all
