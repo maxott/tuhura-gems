@@ -102,7 +102,7 @@ module Tuhura::OmfRc
                 prepare_cmd = File.join(File.dirname(__FILE__), '../../../sbin/prepare_task.sh')
                 cmd = "env -i bash -x #{prepare_cmd} #{state[:path]} #{@tmpdir} #{res.property.ruby_version}"
                 debug "Executing '#{cmd}'"
-                ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
+                ExecApp.new('preparing', cmd, true) do |event_type, app_id, msg|
                   debug "<#{event_type}>:: #{msg}"
                   case event_type.to_s
                   when 'DONE.OK'
