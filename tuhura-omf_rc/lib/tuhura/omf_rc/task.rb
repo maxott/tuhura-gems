@@ -97,9 +97,10 @@ module Tuhura::OmfRc
               when 'application/x-gzip'
                 res.change_state :installing
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
-                Dir.mkdir(@tmpdir)
+                #Dir.mkdir(@tmpdir)
                 #cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
-                cmd = "env -i bash #{File.dirname(__FILE__)}/../../../sbin/prepare_task.sh #{state[:path]} #{@tmpdir} #{res.ruby_version} 2>&1"
+                prepare_cmd = File.join(File.dirname(__FILE__), '../../../sbin/prepare_task.sh')
+                cmd = "env -i bash #{prepare_cmd} #{state[:path]} #{@tmpdir} #{res.property.ruby_version} 2>&1"
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
                   debug "#{event_type}:: #{msg}"
