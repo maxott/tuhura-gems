@@ -103,8 +103,8 @@ module Tuhura::OmfRc
                 cmd = "env -i bash #{prepare_cmd} #{state[:path]} #{@tmpdir} #{res.property.ruby_version} 2>&1"
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
-                  debug "<#{event_type}>(#{event_type.class}):: #{msg}"
-                  case event_type
+                  debug "<#{event_type}>:: #{msg}"
+                  case event_type.to_s
                   when 'DONE.OK'
                     res.change_state :installed
                     res.aim
