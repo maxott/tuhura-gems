@@ -115,6 +115,7 @@ module Tuhura::OmfRc
                     if m = msg.match(/STATUS: (.*)/)
                       res.change_state m[1]
                     end
+                  when 'STARTED'
                     # ignore
                   else
                     res.inform_warn "Unknown event '#{event_type}' while installing task package"                    
