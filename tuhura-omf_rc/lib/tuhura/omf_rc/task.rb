@@ -78,6 +78,8 @@ module Tuhura::OmfRc
         end
       when :installed
         res.run
+      when :done
+        res.inform :done
       else
         res.inform :error, reason: "Don't know how to proceed from '#{res.property.state}' to 'running'."
       end
@@ -97,8 +99,6 @@ module Tuhura::OmfRc
               when 'application/x-gzip'
                 res.change_state :installing
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
-                #Dir.mkdir(@tmpdir)
-                #cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
                 prepare_cmd = File.join(File.dirname(__FILE__), '../../../sbin/prepare_task.sh')
                 cmd = "env -i bash -x #{prepare_cmd} #{state[:path]} #{@tmpdir} #{res.property.ruby_version}"
                 debug "Executing '#{cmd}'"
@@ -119,17 +119,8 @@ module Tuhura::OmfRc
                     # ignore
                   else
                     res.inform_warn "Unknown event '#{event_type}' while installing task package"                    
-                    res.change_state 'install.error'
-                    res.aim
                   end
                 end
-                
-                # unless $?.success?
-                  # res.inform_error "Can't unpack and install package (#{res})"
-                # else
-                  # res.change_state :installed
-                  # res.aim
-                # end
               else
                 res.inform_error "Do not support package mime-type '#{state[:mime_type]}'"
               end
@@ -194,10 +185,28 @@ module Tuhura::OmfRc
         end
         cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
-        ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
-          res.process_event(event_type, msg)
-        end
         res.change_state :running
+        ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
+          debug "<#{event_type}>:: #{msg}"
+          case event_type.to_s
+          when 'DONE.OK'
+            res.change_state :done
+            res.aim
+          when 'DONE.ERROR'
+            res.change_state 'running.failed'
+            res.aim
+          when 'STDOUT'
+            if m = msg.match(/STATUS: (.*)/)
+              res.change_state m[1]
+            end
+          when 'STARTED'
+            # ignore
+          else
+            res.inform_warn "Unknown event '#{event_type}' while running task"                    
+            # res.change_state 'running.warn'
+            # res.aim
+          end
+        end
       end
     end
     
