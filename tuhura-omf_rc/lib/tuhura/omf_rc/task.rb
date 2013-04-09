@@ -98,12 +98,22 @@ module Tuhura::OmfRc
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
                 Dir.mkdir(@tmpdir)
                 #cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
-                cmd = "env -i #{File.dirname(__FILE__)}/../../../sbin/prepare_task.sh #{state[:path]} #{@tmpdir} jruby-1.7.3@global 2>&1"
+                cmd = "env -i bash #{File.dirname(__FILE__)}/../../../sbin/prepare_task.sh #{state[:path]} #{@tmpdir} jruby-1.7.3@global 2>&1"
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
                   debug "#{event_type}:: #{msg}"
-                  if event_type == 'DONE.OK'
+                  case event_type
+                  when 'DONE.OK'
                     res.change_state :installed
+                    res.aim
+                  when 'DONE.ERROR'
+                    res.change_state 'install.failed'
+                    res.aim
+                  when 'STDOUT'
+                    # ignore
+                  else
+                    res.inform_warn "Unknown event '#{event_type}' while installing task package"                    
+                    res.change_state 'install.error'
                     res.aim
                   end
                 end
