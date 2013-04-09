@@ -16,6 +16,7 @@ module Tuhura::OmfRc
     property :target_state, :default => :undefined   # state to aspire to 
     property :script_path, :default => nil
     property :script_args, :default => nil
+    property :ruby_version, :default => 'jruby-1.7.3'
     property :oml_url, :default => 'tcp:oml.incmg.net:3004'
 
     VALID_TARGET_STATES = [:running, :stopped]
@@ -98,7 +99,7 @@ module Tuhura::OmfRc
                 @tmpdir = File.join(Dir.tmpdir, SecureRandom.uuid)
                 Dir.mkdir(@tmpdir)
                 #cmd = "cd #{@tmpdir}; tar zxf #{state[:path]}; /usr/local/rvm/bin/rvm jruby exec bundle package --all 2>&1"
-                cmd = "env -i bash #{File.dirname(__FILE__)}/../../../sbin/prepare_task.sh #{state[:path]} #{@tmpdir} jruby-1.7.3@global 2>&1"
+                cmd = "env -i bash #{File.dirname(__FILE__)}/../../../sbin/prepare_task.sh #{state[:path]} #{@tmpdir} #{res.ruby_version} 2>&1"
                 debug "Executing '#{cmd}'"
                 ExecApp.new('preparing', cmd, true, @tmpdir) do |event_type, app_id, msg|
                   debug "#{event_type}:: #{msg}"
@@ -110,6 +111,9 @@ module Tuhura::OmfRc
                     res.change_state 'install.failed'
                     res.aim
                   when 'STDOUT'
+                    if m = msg.match(/STATUS: (.*)/)
+                      res.change_state m[1]
+                    end
                     # ignore
                   else
                     res.inform_warn "Unknown event '#{event_type}' while installing task package"                    
