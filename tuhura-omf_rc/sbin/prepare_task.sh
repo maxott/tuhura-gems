@@ -20,7 +20,7 @@ fi
 command -v mvn > /dev/null
 if [ $? != 0 ]; then
   echo "STATUS: installing.maven"
-  apt-get install -y maven2
+  env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin apt-get install -y maven2
 fi
 
 echo "STATUS: installing.gems"
