@@ -183,7 +183,11 @@ module Tuhura::OmfRc
         if oml_url = res.property.oml_url
           args += " --oml-collect #{oml_url}"
         end
-        cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{script} #{args}"
+        ruby_opts = []
+        if Dir.exist?(File.join(@tmpdir, 'lib'))
+          ruby_opts << '-I lib'
+        end
+        cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{ruby_opts.join(' ')} #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         res.change_state :running
         ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
