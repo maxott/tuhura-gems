@@ -30,6 +30,21 @@ module Tuhura::Common
       @logger = Log4jruby::Logger.get(name, opts)
     end
     
-    
+    def error(*msg)
+      @logger.error msg.join(' ')
+    end
+
+    def warn(*msg)
+      @logger.warn msg.join(' ')
+    end
+
+    def info(*msg)
+      @logger.info msg.join(' ')
+    end
+
+    def debug(*msg)
+      @logger.debug msg.join(' ')
+    end
+
   end
 end

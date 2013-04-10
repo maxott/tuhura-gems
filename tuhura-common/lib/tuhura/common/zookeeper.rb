@@ -9,7 +9,9 @@ module Tuhura::Common
       url: 'zk.incmg.net'
     }
 
-    class NonExistingPathException < Exception
+    class ZkException < Exception; end
+    
+    class NonExistingPathException < ZkException
       attr_reader :missing_path
       
       def initialize(missing_path)
@@ -36,7 +38,7 @@ module Tuhura::Common
       zk_call do
         r = @zk.get(path: path)
       end
-      @logger.debug "ZK: Read '#{path}' => '#{r}'"
+      debug "ZK: Read '#{path}' => '#{r}'"
       r[:stat].exists? ? r[:data] : def_value
     end
     
@@ -72,10 +74,10 @@ module Tuhura::Common
     def zk_call(retries = 3, &block)
       loop do
         begin
-          block.call
-        rescue Zookeeper::Exceptions::NotConnected => ncex
-          if (tries -= 1) >= 0
-            @@logger.warn "Lost connection to zookeeper. Will try again."
+          return block.call
+        rescue ::Zookeeper::Exceptions::NotConnected => ncex
+          if (retries -= 1) >= 0
+            warn "Lost connection to zookeeper. Will try again."
             sleep 10
           else
             raise ncex
