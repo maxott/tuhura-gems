@@ -21,6 +21,12 @@ module Tuhura::OmfRc
 
     VALID_TARGET_STATES = [:running, :stopped]
     
+    hook :before_create do |type, opts|
+      unless opts.uid
+        opts.uid = "#{opts[:parent] ? opts[:parent].uid : 'xxx'}-task-#{SecureRandom.uuid}"
+      end
+    end
+    
     hook :after_initial_configured do |res|
       #puts ">>>> STATE: #{res.property.target_state}::#{res.property.state}"
       if res.property.target_state == :undefined
