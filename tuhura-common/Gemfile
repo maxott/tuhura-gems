@@ -1,6 +1,10 @@
 source "http://rubygems.org"
 
-#gem 'thread'
-gemspec
+#gemspec
+gem 'kafka-rb'
+gem 'hbase-jruby'
+gem 'log4jruby'
+gem 'zookeeper'
+
 gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
 gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'
