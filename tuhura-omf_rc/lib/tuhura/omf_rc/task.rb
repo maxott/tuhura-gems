@@ -37,15 +37,6 @@ module Tuhura::OmfRc
       end
     end
     
-    # configure :package do |res, value|
-      # puts "PACKAGE: #{value}"
-      # res.property.package = value
-    # end
-# 
-    # configure :script_path do |res, value|
-      # res.property.script_path= value
-    # end
-    
     configure :target_state do |res, value|
             
       value = value.to_s.downcase.to_sym
@@ -70,7 +61,6 @@ module Tuhura::OmfRc
       when :stopped then res.aim_for_stopped
       end
     end
-      
     
     work('aim_for_running') do |res|
       case res.property.state
