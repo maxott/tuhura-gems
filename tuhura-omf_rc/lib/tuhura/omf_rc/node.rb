@@ -15,12 +15,6 @@ module Tuhura::OmfRc
       end
     end
 
-    request :interfaces do |node|
-      node.children.find_all { |v| v.type == :net || v.type == :wlan }.map do |v|
-        { name: v.property.if_name, type: v.type, uid: v.uid }
-      end.sort { |x, y| x[:name] <=> y[:name] }
-    end
-  
     request :tasks do |node|
       node.children.find_all { |v| v.type =~ /tuhura_task/ }.map do |v|
         { name: v.hrn, type: v.type, uid: v.uid }
@@ -52,13 +46,13 @@ module Tuhura::OmfRc
         _, key, value = *line.match(/^(\w+):\s+(\d+)\s/)
         mi[key] = value.to_i
       end
-      m_stats = stats[:memory]
+      m_stats = stats[:memory] = {}
       m_stats[:total] = mi['MemTotal'] / 1024
       #m_stats[:free] = (mi['MemFree'] + mi['Buffers'] + mi['Cached']) / 1024
       m_stats[:free] = mi['MemFree'] / 1024
       m_stats[:used] = m_stats[:total] - m_stats[:free]
       m_stats[:percent_used] = (m_stats[:used] / m_stats[:total].to_f * 100).to_i
-      s_stats = stats[:swap]
+      s_stats = stats[:swap] = {}
       s_stats[:total] = mi['SwapTotal'] / 1024
       s_stats[:free] = mi['SwapFree'] / 1024
       s_stats[:used] = s_stats[:total] - s_stats[:free]
@@ -70,7 +64,7 @@ module Tuhura::OmfRc
     end
     
     
-    request :devices do |resource|
+    request :interfaces do |resource|
       devices = []
       # Support net devices for now
       category = "net"
