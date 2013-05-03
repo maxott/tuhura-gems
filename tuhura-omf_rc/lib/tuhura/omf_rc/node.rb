@@ -47,16 +47,19 @@ module Tuhura::OmfRc
         mi[key] = value.to_i
       end
       m_stats = stats[:memory] = {}
+      m_stats[:unit] = 'MB'
       m_stats[:total] = mi['MemTotal'] / 1024
       #m_stats[:free] = (mi['MemFree'] + mi['Buffers'] + mi['Cached']) / 1024
       m_stats[:free] = mi['MemFree'] / 1024
-      m_stats[:used] = m_stats[:total] - m_stats[:free]
+      m_stats[:cached] = mi['Cached'] / 1024
+      m_stats[:used] = m_stats[:total] - m_stats[:free] - m_stats[:cached]
       m_stats[:percent_used] = (m_stats[:used] / m_stats[:total].to_f * 100).to_i
       s_stats = stats[:swap] = {}
+      s_stats[:unit] = 'MB'
       s_stats[:total] = mi['SwapTotal'] / 1024
-      s_stats[:free] = mi['SwapFree'] / 1024
-      s_stats[:used] = s_stats[:total] - s_stats[:free]
       unless s_stats[:total] == 0    
+        s_stats[:free] = mi['SwapFree'] / 1024
+        s_stats[:used] = s_stats[:total] - s_stats[:free]
         s_stats[:percent_used] = (s_stats[:used] / s_stats[:total].to_f * 100).to_i
       end
       
