@@ -12,13 +12,14 @@ module Tuhura::OmfRc
     
     property :description, :default => ''
     property :package, :default => nil # package containing all the files necessary to execute task
-    property :state, :default => :initialised
-    property :target_state, :default => :undefined   # state to aspire to 
+    property :state, :default => {current: :initialised}
+    #property :target_state, :default => :undefined   # state to aspire to 
     property :script_path, :default => nil
     property :script_args, :default => nil
     property :ruby_version, :default => 'jruby-1.7.3'
     property :oml_url, :default => 'tcp:oml.incmg.net:3004'
-
+    property :pid, :readonly => true
+    
     VALID_TARGET_STATES = [:running, :stopped]
     
     hook :before_create do |type, opts|
@@ -29,24 +30,25 @@ module Tuhura::OmfRc
     
     hook :after_initial_configured do |res|
       #puts ">>>> STATE: #{res.property.target_state}::#{res.property.state}"
-      if res.property.target_state == :undefined
-        res.configure_target_state(:running)
+      unless res.property.state.target
+        res.configure_state :running
       end
       unless res.property.script_path
         res.inform_error "Missing 'script_path'"
       end
     end
     
-    configure :target_state do |res, value|
+    configure :state do |res, value|
             
       value = value.to_s.downcase.to_sym
-      return value if res.property.target_state == value
+      return value if res.property.state[:target] == value
+      return value if res.property.state[:current] == value      
 
       unless VALID_TARGET_STATES.include? value
-        res.inform :warn, reason: "Illegal target_state '#{value}'. Only supporting '#{VALID_TARGET_STATES.join(', ')}'"
+        res.inform :warn, reason: "Illegal target state '#{value}'. Only supporting '#{VALID_TARGET_STATES.join(', ')}'"
         return
       end
-      res.property.target_state = value
+      res.property.state[:target] = value
       
       OmfCommon.eventloop.after(0) do
         res.aim
@@ -56,14 +58,17 @@ module Tuhura::OmfRc
     
     # Move state towards target_state
     work('aim') do |res|
-      case res.property.target_state
+      next unless target_state = res.property.state.target
+      next if target_state == res.property.state.current
+      
+      case target_state
       when :running then res.aim_for_running
       when :stopped then res.aim_for_stopped
       end
     end
     
     work('aim_for_running') do |res|
-      case res.property.state
+      case current_state = res.property.state[:current]
       when :running
         # yahoo
       when :initialised
@@ -77,7 +82,7 @@ module Tuhura::OmfRc
       when :done
         res.inform :done
       else
-        res.inform :error, reason: "Don't know how to proceed from '#{res.property.state}' to 'running'."
+        res.inform :error, reason: "Don't know how to proceed from '#{current_state}' to 'running'."
       end
     end
     
@@ -130,36 +135,55 @@ module Tuhura::OmfRc
       end
     end
     
+    work('aim_for_stopped') do |res|
+      case current_state = res.property.state.current#.to_s
+      when :stopped
+        # yahoo
+      when :initialised, :installed
+        res.change_state 'stopped'
+      when :running
+        res.switch_to_stopped
+      when /^installing/
+        # wait until done
+      when :installed
+        res.change_state 'stopped'
+      else
+        res.inform :error, reason: "Don't know how to proceed from '#{current_state}' to 'running'."
+      end
+    end
+
     work 'change_state' do |res, value|
-      #puts ">>>> Changing state to #{value}"
       debug "Changing state to #{value}"
-      res.property.state = value
-      res.inform :status, {state: value, target_state: res.property.target_state}, :ALL
+      #res.property.state[:current] = value
+      res.property.state.current = (value = value.to_sym)
+      res.property.state.delete(:target) if res.property.state[:target] == value
+      
+      res.inform :status, {state: res.property.state.to_hash}, :ALL
     end
     
     # Swich this Application RP into the 'stopped' state
     # (see the description of configure :state)
     #
     work('switch_to_stopped') do |res|
-      if res.property.state == :running || res.property.state == :paused
-        id = res.property.app_id
-        unless ExecApp[id].nil?
+      current_state = res.property.state.current.to_sym
+      debug "Stopping app - #{@app}"
+      if current_state == :running || current_state == :paused
+        if @app
           # stop this app
           begin
-            # first, try sending 'exit' on the stdin of the app, and wait
-            # for 4s to see if the app acted on it...
-            ExecApp[id].stdin('exit')
+            # second, try sending TERM signal, wait another 4s to see
+            # if the app acted on it...
+            debug "Signal 'TERM'"              
+            @app.signal('TERM')
             sleep 4
-            unless ExecApp[id].nil?
-              # second, try sending TERM signal, wait another 4s to see
-              # if the app acted on it...
-              ExecApp[id].signal('TERM')
-              sleep 4
-              # finally, try sending KILL signal
-              ExecApp[id].kill('KILL') unless ExecApp[id].nil?
+            # finally, try sending KILL signal
+            if @app
+              debug "Signal 'KILL'"              
+              @app.signal('KILL') 
             end
-            res.property.state = :completed
+            res.change_state 'stopped'
           rescue => err
+            warn "While stopping app - #{err}"
           end
         end
       end
@@ -186,13 +210,15 @@ module Tuhura::OmfRc
         cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{ruby_opts.join(' ')} #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         res.change_state :running
-        ExecApp.new('task', cmd, true, @tmpdir) do |event_type, app_id, msg|
-          debug "<#{event_type}>:: #{msg}"
+        @app = ExecApp.new(nil, cmd, true, @tmpdir) do |event_type, app_id, msg|
+          debug "<#{event_type}> #{msg}"
           case event_type.to_s
           when 'DONE.OK'
+            @app = nil
             res.change_state :done
             res.aim
           when 'DONE.ERROR'
+            @app = nil
             res.change_state 'running.failed'
             res.aim
           when 'STDOUT'
@@ -200,13 +226,14 @@ module Tuhura::OmfRc
               res.change_state m[1]
             end
           when 'STARTED'
-            # ignore
+            # nothing
           else
             res.inform_warn "Unknown event '#{event_type}' while running task"                    
             # res.change_state 'running.warn'
             # res.aim
           end
         end
+        res.property.pid = @app.pid
       end
     end
     
