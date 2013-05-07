@@ -16,9 +16,13 @@ module Tuhura::OmfRc
     end
 
     request :tasks do |node|
-      node.children.find_all { |v| v.type =~ /tuhura_task/ }.map do |v|
-        { name: v.hrn, type: v.type, uid: v.uid }
-      end.sort { |x, y| x[:name] <=> y[:name] }
+      node.children.find_all { |v| v.property.type =~ /tuhura_task/ }.map do |v|
+        t = { uid: v.uid, address: v.address, state: v.property.state }
+        if name = v.hrn
+          t[:name] = name
+        end
+        t
+      end.sort { |x, y| (x[:name] || x[:uid]) <=> (y[:name] || y[:uid]) }
     end
 
     request :stats do |node|
@@ -41,26 +45,28 @@ module Tuhura::OmfRc
         warn "Couldn't use `uptime` as expected."
       end
       
-      mi = {}
-      `cat /proc/meminfo`.each_line do |line|
-        _, key, value = *line.match(/^(\w+):\s+(\d+)\s/)
-        mi[key] = value.to_i
-      end
-      m_stats = stats[:memory] = {}
-      m_stats[:unit] = 'MB'
-      m_stats[:total] = mi['MemTotal'] / 1024
-      #m_stats[:free] = (mi['MemFree'] + mi['Buffers'] + mi['Cached']) / 1024
-      m_stats[:free] = mi['MemFree'] / 1024
-      m_stats[:cached] = mi['Cached'] / 1024
-      m_stats[:used] = m_stats[:total] - m_stats[:free] - m_stats[:cached]
-      m_stats[:percent_used] = (m_stats[:used] / m_stats[:total].to_f * 100).to_i
-      s_stats = stats[:swap] = {}
-      s_stats[:unit] = 'MB'
-      s_stats[:total] = mi['SwapTotal'] / 1024
-      unless s_stats[:total] == 0    
-        s_stats[:free] = mi['SwapFree'] / 1024
-        s_stats[:used] = s_stats[:total] - s_stats[:free]
-        s_stats[:percent_used] = (s_stats[:used] / s_stats[:total].to_f * 100).to_i
+      if File.exist? '/proc/meminfo'
+        mi = {}
+        `cat /proc/meminfo`.each_line do |line|
+          _, key, value = *line.match(/^(\w+):\s+(\d+)\s/)
+          mi[key] = value.to_i
+        end
+        m_stats = stats[:memory] = {}
+        m_stats[:unit] = 'MB'
+        m_stats[:total] = mi['MemTotal'] / 1024
+        #m_stats[:free] = (mi['MemFree'] + mi['Buffers'] + mi['Cached']) / 1024
+        m_stats[:free] = mi['MemFree'] / 1024
+        m_stats[:cached] = mi['Cached'] / 1024
+        m_stats[:used] = m_stats[:total] - m_stats[:free] - m_stats[:cached]
+        m_stats[:percent_used] = (m_stats[:used] / m_stats[:total].to_f * 100).to_i
+        s_stats = stats[:swap] = {}
+        s_stats[:unit] = 'MB'
+        s_stats[:total] = mi['SwapTotal'] / 1024
+        unless s_stats[:total] == 0    
+          s_stats[:free] = mi['SwapFree'] / 1024
+          s_stats[:used] = s_stats[:total] - s_stats[:free]
+          s_stats[:percent_used] = (s_stats[:used] / s_stats[:total].to_f * 100).to_i
+        end
       end
       
       stats
