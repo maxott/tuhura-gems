@@ -23,11 +23,11 @@ if [ $? != 0 ]; then
   env -i PATH=/usr/sbin:/usr/bin:/sbin:/bin apt-get install -y maven2
 fi
 
-if [ ! -e Gemfile ]; then
+if [ -e Gemfile ]; then
+  echo "STATUS: installing.gems"
+  source /usr/local/rvm/environments/$RUBY_VER
+  /usr/local/rvm/bin/rvm ${RUBY_VER} exec bundle package --all
+else
   touch Gemfile
 fi
 
-echo "STATUS: installing.gems"
-source /usr/local/rvm/environments/$RUBY_VER
-#gem install bundler
-/usr/local/rvm/bin/rvm ${RUBY_VER} exec bundle package --all

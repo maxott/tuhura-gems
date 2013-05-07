@@ -17,7 +17,7 @@ module Tuhura::OmfRc
 
     request :tasks do |node|
       node.children.find_all { |v| v.property.type =~ /tuhura_task/ }.map do |v|
-        t = { uid: v.uid, address: v.address, state: v.property.state }
+        t = { uid: v.uid, address: v.resource_address, state: v.property.state }
         if name = v.hrn
           t[:name] = name
         end
@@ -28,11 +28,13 @@ module Tuhura::OmfRc
     request :stats do |node|
       stats = {}
       unless @num_processors
-        if `cat /proc/cpuinfo | grep 'model name' | wc -l` =~ /(\d+)/
-          @num_processors = $1.to_i
-        else
-          @num_processors = 1
-          warn "Couldn't use /proc/cpuinfo to determine number of processors."
+        @num_processors = 1
+        if File.exist? '/proc/cpuinfo' 
+          if `cat /proc/cpuinfo | grep 'model name' | wc -l` =~ /(\d+)/
+            @num_processors = $1.to_i
+          else
+            warn "Couldn't use /proc/cpuinfo to determine number of processors."
+          end
         end
       end
       if `uptime` =~ /load average(s*): ([\d.]+)(,*) ([\d.]+)(,*) ([\d.]+)\Z/
