@@ -1,0 +1,14 @@
+require 'rake/testtask'
+
+task :package do
+  pl = ['Gemfile', '*.rb', 'lib', '*.properties', 'runner']
+  Dir.mkdir("build") unless File.directory?("build")
+  sh "tar zcf build/package.tgz #{pl.map {|g| Dir.glob(g)}.flatten.join(' ')}"
+end
+
+Rake::TestTask.new do |t|
+  t.libs << 'test'
+end
+
+desc "Run tests"
+task :default => :test
