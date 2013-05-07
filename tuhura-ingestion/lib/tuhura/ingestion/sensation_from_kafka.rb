@@ -31,8 +31,13 @@ module Tuhura::Ingestion
     def initialize(opts)
       super
       sensation_init
-      @table_regex = hbase_test_mode? ? /^sensation[0-9]+_test$/ : /^sensation[0-9]+$/
+      @hbase_table_regexp = hbase_test_mode? ? /^sen[0-9]+_test$/ : /^sen[0-9]+$/
     end
   end
+end
+
+if $0 == __FILE__
+  options = {task: :inject, max_msgs: -1}
+  Tuhura::Ingestion::SensationFromKafka.create(options).work(options)
 end
 

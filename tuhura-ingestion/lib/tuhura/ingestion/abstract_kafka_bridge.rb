@@ -1,20 +1,5 @@
 require "bundler/setup"
 require 'kafka'
-# require 'json'
-# require 'zlib'
-# require 'hbase-jruby'
-# require 'benchmark'
-# require 'optparse'
-# require 'open-uri'
-# require 'oml4r/benchmark'
-# require 'socket'
-
-# require 'java'
-# HBase.resolve_dependency! 'cdh4.1' #'0.94'
-# java_import org.apache.hadoop.hbase.TableNotFoundException
-
-#require 'log4jruby'
-#logger = Log4jruby::Logger.get($0, :tracing => true, :level => :debug)
 
 require 'tuhura/common/logger'
 require 'tuhura/common/oml'
@@ -48,7 +33,7 @@ module Tuhura::Ingestion
         end
         op.on(nil, '--test', "Test mode. Append '-test' to all created HBASE tables [#{HBASE_OPTS[:test_mode]}]" ) do 
           HBASE_OPTS[:test_mode] = true
-          puts "SET TEST: #{HBASE_OPTS.inspect}"
+          #puts "SET TEST: #{HBASE_OPTS.inspect}"
         end
         op.on('-v', '--verbose', "Verbose mode [#{options[:verbose] == true}]" ) do 
           options[:verbose] = true
@@ -64,22 +49,24 @@ module Tuhura::Ingestion
     end
   
     def work(opts = {}, &block)
+  
       if block
         block.call(self)
       else 
         case opts[:task]
         when :drop_tables
-          drop_tables!
+          #drop_tables!
+          hbase_drop_tables!
         when :inject
           inject(opts[:max_msgs])
         else
-          @logger.error "Unknown task '#{opts[:task]}'"
+          error "Unknown task '#{opts[:task]}'"
           exit(-1)
         end
       end
   
       OML4R::close
-      @logger.info "Done"
+      info "Done"
     end
   
     # Deal with a single message. 'msg' is a Ruby Hash.
@@ -89,35 +76,7 @@ module Tuhura::Ingestion
     def process(msg)
       raise "IMPLEMENT ME!"
     end
-  
-    # def get_table(table_name)
-      # if HBASE_OPTS[:test_mode]
-        # table_name = "#{table_name}_test"
-      # end
-      # #puts ">>> TABLE_NAME: #{table_name}"
-#   
-      # unless inst = @hbase_tables[table_name]
-        # inst = @hbase_tables[table_name] = @hbase.table(table_name)
-        # unless inst.exists?
-          # logger.info ">>>> CREATING #{table_name}"
-          # inst.create! :f => {}
-          # #inst.create! :f => { :compression => :snappy, :bloomfilter => :row }
-        # end
-      # end
-      # inst
-    # end
-  
-    # def create_key(day_ts, user_id = nil, payload = nil)
-      # key = day_ts << 64
-      # if user_id
-        # key += (user_id << 32)
-      # end
-      # if payload
-        # key += Zlib::crc32(payload)
-      # end
-      # key.to_java.toByteArray
-    # end
-  
+    
     # Drop all tables associated with sensation.
     # DANGER!!!!
     def drop_tables!()
@@ -176,25 +135,27 @@ module Tuhura::Ingestion
           # Persist progress
           _persist_offset(@kafka_consumer.offset)
           bm_w.report
-          @logger.info ">>>> Wrote #{cnt}/#{total_count} record(s)" if @verbose
+          info ">>>> Wrote #{cnt}/#{total_count} record(s)" if @verbose
           break if (max_count > 0 && total_count >= max_count) 
         end
       end
       bm_r.stop
       bm_w.stop
-      @logger.info ">>>> SUMMARY: Wrote #{total_count} record(s) - offset: #{@kafka_consumer.offset}"
+      info ">>>> SUMMARY: Wrote #{total_count} record(s) - offset: #{@kafka_consumer.offset}"
       indv_counts.each do |group_id, cnt|
-        @logger.info ">>>>      #{group_id}:\t#{cnt}"
+        info ">>>>      #{group_id}:\t#{cnt}"
       end
     end
   
     def initialize(opts)
       logger_init()
       oml_init(opts)
+      
       @kafka_opts = KAFKA_OPTS.merge(opts[:kafka] || {})
       @topic = @kafka_opts[:topic]
       _init_zk()
       hbase_init()
+
       if (offset = @kafka_opts[:offset]) < 0
         if offset_s = zk_get(@offset_path)
           offset = offset_s.to_i
@@ -205,10 +166,6 @@ module Tuhura::Ingestion
       end
       @kafka_consumer = Kafka::Consumer.new(@kafka_opts)
       @logger.info "Using Kafak offset: #{@kafka_opts[:offset]}"
-      
-      # @hbase_tables = {} # hold mapping from table name to its instance
-      # @hbase = HBase.new hbase_opts 
-      # @verbose = opts[:verbose] == true
     end
   
     def _parse_and_process(kafka_msg)
