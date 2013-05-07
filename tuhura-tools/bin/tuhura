@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+BIN_DIR = File.dirname(File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__)
+TOP_DIR = File.join(BIN_DIR, '..')
+Dir.chdir(TOP_DIR)
+$: << File.join(TOP_DIR, 'lib')
+
+
+require 'tuhura/tools/startup_helper'
+include Tuhura::Tools
+
+StartupHelper.def_task :remote, {
+  :descr => 'Run a remote task', 
+  :top_dir => TOP_DIR, 
+  :path => 'lib/tuhura/tools/remote/remote_task_runner.rb',
+  :gemfile => 'lib/tuhura/tools/remote/Gemfile',
+  :ruby => 'ruby-1.9.3'
+}
+
+StartupHelper.def_task :ingestion, {
+  :descr => 'Ingest data from kafka', 
+  :top_dir => File.join(TOP_DIR, '../tuhura-ingestion'),
+  :path => 'bin/tuhura-ingestion',
+  :ruby => 'ruby-1.9.3',
+  :use_bundler => false
+}
+
+StartupHelper.def_task :zk, {
+  :descr => 'Interact with zookeeper', 
+  :top_dir => TOP_DIR, 
+  :path => 'lib/tuhura/tools/zookeeper/zk_tool.rb',
+  :gemfile => 'lib/tuhura/tools/zookeeper/Gemfile',
+  :ruby => 'jruby'
+}
+
+StartupHelper.run
+

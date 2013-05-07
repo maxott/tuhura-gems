@@ -1,0 +1,24 @@
+source "http://rubygems.org"
+
+def find_alternative(local_dir, git)
+  unless local_dir.start_with? '/'
+    local_dir = File.join(File.dirname(__FILE__), local_dir)
+  end
+  #puts "Checking for '#{local_dir}'"
+  Dir.exist?(local_dir) ? {path: local_dir} : {git: git}
+end
+
+OMF_COMMON_DIR = File.expand_path('~/src/omf6/omf_common')
+unless Dir.exist?(OMF_COMMON_DIR)
+  git 'git://github.com/mytestbed/omf.git' do
+    gem 'omf_common'
+  end
+end
+
+
+gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'
+#gem 'tuhura-common', find_alternative('../tuhura-common', 'git://github.com/maxott/tuhura-gems.git')
+gem 'omf_common', find_alternative(OMF_COMMON_DIR, 'git://github.com/mytestbed/omf.git')
+gem 'amqp'
+gem 'json-jwt'

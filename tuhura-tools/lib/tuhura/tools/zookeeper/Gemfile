@@ -1,0 +1,24 @@
+source "http://rubygems.org"
+
+def find_alternative(local_dir, git)
+  unless local_dir.start_with? '/'
+    local_dir = File.join(File.dirname(__FILE__), local_dir)
+  end
+  #puts "Checking for '#{local_dir}' - #{Dir.exist?(local_dir)}"
+  Dir.exist?(local_dir) ? {path: local_dir} : {git: git}
+end
+
+THIS_DIR = File.dirname(File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__)
+TUHURA_TOP_DIR = File.join(THIS_DIR, '../../../../../..')
+TUHURA_GEMS_DIR = "#{TUHURA_TOP_DIR}/tuhura-gems"
+unless Dir.exist?(TUHURA_GEMS_DIR)
+  git 'git://github.com/maxott/tuhura-gems.git' do
+    gem 'tuhura-common'
+  end
+end
+
+
+#gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+#gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'
+gem 'tuhura-common', find_alternative("#{TUHURA_GEMS_DIR}/tuhura-common", 'git://github.com/maxott/tuhura-gems.git')
+
