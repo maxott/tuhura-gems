@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+$: << File.join(File.dirname(__FILE__), '../lib')
+$: << File.join(File.dirname(__FILE__), '../../tuhura-tools/lib')
+
+require 'tuhura/tools/startup_helper'
+include Tuhura::Tools
+
+StartupHelper.def_task :sensation, {
+  :descr => 'Ingest sensation data from kafka into hbase', 
+  :top_dir => File.join(File.dirname(__FILE__), '..'),
+  :path => 'lib/tuhura/ingestion/sensation_from_kafka.rb',
+  :ruby => 'jruby'
+}
+
+# StartupHelper.def_task :ingestion, {
+  # :descr => 'Ingest data from kafka', 
+  # :top_dir => File.join(File.dirname(__FILE__), '../../tuhura-ingestion'),
+  # :path => 'bin/tuhura-ingestion',
+  # :ruby => 'ruby-1.9.3',
+  # :use_bundler => false
+# }
+
+StartupHelper.run
+
