@@ -1,0 +1,61 @@
+
+# Tuhura Tools
+
+This package contains various tools to simplify interacting with the Tuhura environment.
+
+## Remote
+
+The 'remote' tool allows one to execute tasks on the compute and data nodes.
+
+    % tuhura remote -h
+
+For example, the following initiates the ingestion process for Kafka queue into HDFS on a specific node
+
+    % tuhura remote -r amqp://amqp.incmg.net/dn1.c1.incmg.net \
+        -D $TUHURA_TOP/tuhura-gems/tuhura-ingestion \
+        lib/tuhura/ingestion/sensation_from_kafka.rb \
+        -- -t sensation3
+
+## Zookeeper
+
+The 'zk' allows on to investigate and change content stored in Zookeeper.
+
+    % tuhura zk -h
+    Usage: zk_tool [options] 
+    
+    Interact with information in Zookeeper related to Tuhura
+    
+        -c, --children PATH              List teh children of PATH
+        -d, --delete PATH                Delete PATH
+        -g, --get PATH                   Return the value of PATH
+        -p, --put PATH VALUE             Set the VALUE of PATH
+        -w, --walk PATH                  Walk tree rooted at PATH and print all children and their values
+            --debug                      Set logging to 'debug' [info]
+        -h, --help                       Show this message
+    
+For instance to see the cursors for the sensation ingestion which are stored under the '/incmg/kafka_bridge'
+path we can 'walk' the tree with
+
+    % tuhura zk -w /incmg/kafka_bridge
+    /incmg/kafka_bridge: 
+      sensation0: 
+        offset: 107499265516
+      sensation1: 
+        offset: 82765348874
+      sensation2: 
+        offset: 133598412480
+      sensation3: 
+        offset: 13312331670
+      sensation4: 
+        offset: 13453382269
+      sensation5: 
+        offset: 10902851076
+      sensation6: 
+        offset: 6091631265
+      sensation7: 
+        offset: 13415787209
+      sensation8: 
+        offset: 5835596924
+      sensation9: 
+        offset: 6181724822
+    
