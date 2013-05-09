@@ -7,13 +7,28 @@ module Tuhura::OmfRc
     register_proxy :tuhura_node
     
     hook :before_create do |node, type, opts|
-      if type.to_sym == :net
+      case type.to_sym
+      when :net
         net_dev = node.request_devices.find do |v|
           v[:name] == opts[:if_name]
         end
         raise "Device '#{opts[:if_name]}' not found" if net_dev.nil?
+      when :tuhura_task
+        unless opts[:uid]
+          opts[:uid] = "#{opts[:parent] ? opts[:parent].uid : 'xxx'}-task-#{SecureRandom.uuid}"
+        end
       end
     end
+    
+    # Set up a timer to check for reclaimable tasks
+    #
+    hook :before_ready do |res|
+      OmfCommon.eventloop.every(5) do
+        res.reclaim_tasks
+      end
+      
+    end
+    
 
     request :tasks do |node|
       node.children.find_all { |v| v.property.type =~ /tuhura_task/ }.map do |v|
@@ -108,5 +123,17 @@ module Tuhura::OmfRc
       devices
     end
     
+    # Check if any of the created tasks can be deleted
+    #
+    work 'reclaim_tasks' do |res|
+      res.children.find_all { |v| v.property.type =~ /tuhura_task/ }.each do |v|
+        puts "CHECK CHILD #{v}: #{v.reclaimable?}"
+        if v.reclaimable?
+          puts "RELEASE #{v}"
+          res.release(v.uid)
+        end
+      end
+    end
+        
   end
 end

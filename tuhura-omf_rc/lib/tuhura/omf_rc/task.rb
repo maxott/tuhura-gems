@@ -2,11 +2,12 @@
 require 'tuhura/omf_rc'
 require 'tempfile'
 require 'securerandom'
+require 'time'
+require 'omf_common/exec_app'
 
 module Tuhura::OmfRc
   module Task
     include ::OmfRc::ResourceProxyDSL
-    require 'omf_common/exec_app'
   
     register_proxy :tuhura_task
     
@@ -19,14 +20,10 @@ module Tuhura::OmfRc
     property :ruby_version, :default => 'jruby-1.7.3'
     property :oml_url, :default => 'tcp:oml.incmg.net:3004'
     property :pid, :readonly => true
+    property :node, :read_only => true
     
     VALID_TARGET_STATES = [:running, :stopped]
     
-    hook :before_create do |type, opts|
-      unless opts.uid
-        opts.uid = "#{opts[:parent] ? opts[:parent].uid : 'xxx'}-task-#{SecureRandom.uuid}"
-      end
-    end
     
     hook :after_initial_configured do |res|
       #puts ">>>> STATE: #{res.property.target_state}::#{res.property.state}"
@@ -36,6 +33,14 @@ module Tuhura::OmfRc
       unless res.property.script_path
         res.inform_error "Missing 'script_path'"
       end
+      if parent = res.opts.parent
+        res.property.node = parent.resource_address
+      end
+      res.property.state.since = Time.now.iso8601
+    end
+    
+    hook :before_release do |res|
+      puts "RELEASING #{res}"
     end
     
     configure :state do |res, value|
@@ -156,6 +161,7 @@ module Tuhura::OmfRc
       debug "Changing state to #{value}"
       #res.property.state[:current] = value
       res.property.state.current = (value = value.to_sym)
+      res.property.state.since = Time.now.iso8601
       res.property.state.delete(:target) if res.property.state[:target] == value
       
       res.inform :status, {state: res.property.state.to_hash}, :ALL
@@ -207,7 +213,7 @@ module Tuhura::OmfRc
         if Dir.exist?(File.join(@tmpdir, 'lib'))
           ruby_opts << '-I lib'
         end
-        cmd = "env -i /usr/local/rvm/bin/rvm jruby exec bundle exec ruby #{ruby_opts.join(' ')} #{script} #{args}"
+        cmd = "env -i /usr/local/rvm/bin/rvm #{res.property.ruby_version} exec bundle exec ruby #{ruby_opts.join(' ')} #{script} #{args}"
         info "Executing '#{cmd}' in #{@tmpdir}"
         res.change_state :running
         @app = ExecApp.new(nil, cmd, true, @tmpdir) do |event_type, app_id, msg|
@@ -219,7 +225,7 @@ module Tuhura::OmfRc
             res.aim
           when 'DONE.ERROR'
             @app = nil
-            res.change_state 'running.failed'
+            res.change_state 'done.error'
             res.aim
           when 'STDOUT'
             if m = msg.match(/STATUS: (.*)/)
@@ -240,5 +246,19 @@ module Tuhura::OmfRc
     work 'process_event' do |res, event_type, msg|
       debug "#{event_type}:: #{msg}"
     end
+    
+    # Return true if the parent resource can delete this resource
+    #
+    work 'reclaimable?' do |res|
+      case res.property.state.current
+      when /done/
+        true
+      when :stopped
+        true
+      else
+        false
+      end
+    end
+    
   end
 end

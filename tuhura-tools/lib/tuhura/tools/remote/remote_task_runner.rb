@@ -43,6 +43,9 @@ end
 op.on '-D', '--directory DIR', "Directory to package up and send to resource" do |path|
   aopts[:package_dir] = path
 end
+op.on '-R', '--ruby-version VERSION', "Ruby version to use" do |ver|
+  aopts[:ruby_version] = ver
+end
 op.on_tail '-m', '--mode MODE', "Set operation mode [#{$op_mode}]" do | mode |
   $op_mode = mode
 end
@@ -96,12 +99,15 @@ def start_task(group_t, node_t, opts)
   pkg_id = "#{node_t.id}/package"
   pkg_addr = OmfCommon.comm.broadcast_file(tar_file)
   
-  node_t.create(:tuhura_task, {
+  copts = {
     package: pkg_addr,
     script_path: script_path,
     script_args: opts[:args],
-    membership: group_t.address
-  })
+    #membership: group_t.address
+    membership: group_t.id
+  }
+  copts[:ruby_version] = opts[:ruby_version] if opts[:ruby_version]
+  node_t.create(:tuhura_task, copts)
 end
 
 def print_inform(msg, topic)
@@ -130,7 +136,7 @@ OmfCommon.init($op_mode, opts) do |el|
     # Get handle on existing entity
     comm.subscribe(resource_name) do |node_t|
       node_t.on_subscribed do
-        comm.subscribe('task') do |group_t|
+        comm.subscribe('tasks') do |group_t|
           group_t.on_inform_status do |msg|
             print_inform(msg, group_t)
           end
