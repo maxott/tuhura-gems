@@ -6,7 +6,7 @@ Interact with information in Zookeeper related to Tuhura
 }
 
 opts = {
- 
+  zk: {}
 }
 
 log_opts = Tuhura::Common::Logger::LOGGER_OPTS
@@ -15,7 +15,7 @@ log_opts[:level] = :info
 
 op = $op = OptionParser.new
 op.banner = "Usage: #{op.program_name} [options] \n#{DESCR}\n"
-op.on '-c', '--children PATH', "List teh children of PATH" do |path|
+op.on '-c', '--children PATH', "List the children of PATH" do |path|
   opts[:action] = :children  
   opts[:path] = path
 end
@@ -34,6 +34,9 @@ end
 op.on '-w', '--walk PATH', "Walk tree rooted at PATH and print all children and their values" do |path|
   opts[:action] = :walk  
   opts[:path] = path
+end
+op.on '-z', '--zk-url URL', "URL of zookeeper server [#{Tuhura::Common::Zookeeper::ZOOKEEPER_OPTS[:url]}]" do |url|
+  opts[:zk][:url] = url
 end
 op.on_tail '--debug', "Set logging to 'debug' [#{log_opts[:level]}]" do 
   log_opts[:level] = :debug
@@ -81,7 +84,7 @@ class ZkTool
   
   def initialize(opts)
     logger_init()
-    zk_init()
+    zk_init(opts[:zk])
   end
   
   def _walk(path, level = 0)
@@ -92,7 +95,7 @@ class ZkTool
       value = zk_get(path)
     end
     puts "#{'  ' * level}#{level == 0 ? path : path.split('/')[-1]}: #{value}"
-    c.sort.each { |p| _walk("#{path}/#{p}", level + 1) } 
+    c.sort.each { |p| _walk("#{path == '/' ? '' : path}/#{p}", level + 1) } 
   end
 end
 

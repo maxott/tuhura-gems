@@ -90,7 +90,9 @@ module Tuhura::Common
     
     def zk_init(opts = {})
       @zk_opts = ZOOKEEPER_OPTS.merge(opts)
-      @zk = ::Zookeeper.new(zk_opts[:url])
+      url = zk_opts[:url]
+      debug "Contacting zookeeper server at: #{url}"
+      @zk = ::Zookeeper.new(url)
       @zk_validated_paths = Set.new
     end
     
