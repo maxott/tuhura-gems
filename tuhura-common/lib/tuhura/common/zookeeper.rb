@@ -106,8 +106,9 @@ module Tuhura::Common
           return block.call
         rescue ::Zookeeper::Exceptions::NotConnected => ncex
           if (i += 1) <= retries
-            warn "Lost connection to zookeeper. Will try again."
-            sleep 10 * i
+            # warn "Lost connection to zookeeper. Will try again."
+            # sleep 10 * i
+            @zk.reopen
           else
             raise ncex
           end            
