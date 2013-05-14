@@ -118,7 +118,7 @@ module Tuhura::OmfRc
                     res.change_state 'install.failed'
                     res.aim
                   when 'STDOUT'
-                    if m = msg.match(/STATUS: (.*)/)
+                    if m = msg.match(/^STATUS: (.*)/)
                       res.change_state m[1]
                     end
                   when 'STARTED'
