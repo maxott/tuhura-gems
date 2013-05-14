@@ -3,9 +3,9 @@ require 'tuhura/omf_rc'
 module Tuhura::OmfRc
   module Node
     include OmfRc::ResourceProxyDSL
-  
+
     register_proxy :tuhura_node
-    
+
     hook :before_create do |node, type, opts|
       case type.to_sym
       when :net
@@ -19,16 +19,16 @@ module Tuhura::OmfRc
         end
       end
     end
-    
+
     # Set up a timer to check for reclaimable tasks
     #
     hook :before_ready do |res|
       OmfCommon.eventloop.every(5) do
         res.reclaim_tasks
       end
-      
+
     end
-    
+
 
     request :tasks do |node|
       node.children.find_all { |v| v.property.type =~ /tuhura_task/ }.map do |v|
@@ -44,7 +44,7 @@ module Tuhura::OmfRc
       stats = {}
       unless @num_processors
         @num_processors = 1
-        if File.exist? '/proc/cpuinfo' 
+        if File.exist? '/proc/cpuinfo'
           if `cat /proc/cpuinfo | grep 'model name' | wc -l` =~ /(\d+)/
             @num_processors = $1.to_i
           else
@@ -56,12 +56,13 @@ module Tuhura::OmfRc
         stats[:load_avg] = {
           one_min: $2.to_f / @num_processors,
           five_min: $4.to_f/ @num_processors,
-          fifteen_min: $6.to_f/ @num_processors
+          fifteen_min: $6.to_f/ @num_processors,
+          cores: @num_processors
         }
       else
         warn "Couldn't use `uptime` as expected."
       end
-      
+
       if File.exist? '/proc/meminfo'
         mi = {}
         `cat /proc/meminfo`.each_line do |line|
@@ -79,17 +80,28 @@ module Tuhura::OmfRc
         s_stats = stats[:swap] = {}
         s_stats[:unit] = 'MB'
         s_stats[:total] = mi['SwapTotal'] / 1024
-        unless s_stats[:total] == 0    
+        unless s_stats[:total] == 0
           s_stats[:free] = mi['SwapFree'] / 1024
           s_stats[:used] = s_stats[:total] - s_stats[:free]
           s_stats[:percent_used] = (s_stats[:used] / s_stats[:total].to_f * 100).to_i
         end
       end
-      
+
+      di = stats[:disk] = []
+      `df -l -T`.split("\n").each_with_index { |l, i|
+        next if i < 1 # skip headers
+        m = l.match('([^ ]*)[ ]*' * 7)
+        dummy, fs, type, blocks, avail, used, used_pct, mount = m.to_a
+        di << {
+          mount: mount, disk: fs, ftype: type,
+          available: avail, used: used, used_pct: used_pct
+        }
+      }
+
       stats
     end
-    
-    
+
+
     request :interfaces do |resource|
       devices = []
       # Support net devices for now
@@ -105,16 +117,16 @@ module Tuhura::OmfRc
             File.exist?("#{v}/operstate") && File.open("#{v}/operstate") do |fo|
               device[:op_state] = (fo.read || '').chomp
             end
-            # Let's see if the interface is already up 
+            # Let's see if the interface is already up
             # NOTE: THIS MAY NOT BE ROBUST
             s = `ifconfig #{File.basename(v)}`
             unless s.empty?
               if m = s.match(/inet addr:\s*([0-9.]+)/)
                 device[:ip4] = m[1]
-              end 
+              end
               if m = s.match(/inet6 addr:\s*([0-9a-f.:\/]+)/)
                 device[:ip6] = m[1]
-              end 
+              end
             end
             devices << device
           end
@@ -122,7 +134,7 @@ module Tuhura::OmfRc
       end
       devices
     end
-    
+
     # Check if any of the created tasks can be deleted
     #
     work 'reclaim_tasks' do |res|
@@ -134,6 +146,6 @@ module Tuhura::OmfRc
         end
       end
     end
-        
+
   end
 end
