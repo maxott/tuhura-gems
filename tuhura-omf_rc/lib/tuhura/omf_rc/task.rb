@@ -68,7 +68,11 @@ module Tuhura::OmfRc
     end
 
     configure :automatic_restart do |res, value|
-
+      p = res.property.automatic_restart
+      [:active, :retries, :retry_threshhold, :retry_delay].each do |k|
+        p[k] = value[k] if value[k]
+      end
+      p
     end
 
     # Move state towards target_state
