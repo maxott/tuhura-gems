@@ -255,6 +255,7 @@ module Tuhura::OmfRc
             res.aim
           when 'DONE.ERROR'
             @app = nil
+            res.property.state.target = :running
             res.change_state 'done.error'
             res.aim
           when 'STDOUT'
