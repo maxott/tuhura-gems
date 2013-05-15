@@ -108,7 +108,8 @@ module Tuhura::OmfRc
           OmfCommon.eventloop.after(delay) do
             debug "Attempt to restart task now (#{res.property.state})"
             if res.property.state.current == :restarting && res.property.state.target == :running
-              (res.property.state.restarted ||= []) << Time.now.iso8601
+              res.property.state.restarted ||= []
+              res.property.state.restarted << Time.now.iso8601 # can't do this in one shot. No idea why
               res.property.state.delete(:restarting_at)
               res.run
             end
