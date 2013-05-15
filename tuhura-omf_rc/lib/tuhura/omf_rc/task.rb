@@ -8,23 +8,29 @@ require 'omf_common/exec_app'
 module Tuhura::OmfRc
   module Task
     include ::OmfRc::ResourceProxyDSL
-  
+
     register_proxy :tuhura_task
-    
+
     property :description, :default => ''
     property :package, :default => nil # package containing all the files necessary to execute task
     property :state, :default => {current: :initialised}
-    #property :target_state, :default => :undefined   # state to aspire to 
+    property :automatic_restart => {
+      active: false, # set to true if task should be restarted on 'done.error'
+      retries: 3, # Number of retry events before giving up (< 0 ...  try forever)
+      retry_threshhold: 120,  # Seconds after which to reset the retry counter
+      retry_delay: 30 # Seconds to wait before restarting
+    }
+    #property :target_state, :default => :undefined   # state to aspire to
     property :script_path, :default => nil
     property :script_args, :default => nil
     property :ruby_version, :default => 'jruby-1.7.3'
     property :oml_url, :default => 'tcp:oml.incmg.net:3004'
     property :pid, :readonly => true
     property :node, :read_only => true
-    
+
     VALID_TARGET_STATES = [:running, :stopped]
-    
-    
+
+
     hook :after_initial_configured do |res|
       #puts ">>>> STATE: #{res.property.target_state}::#{res.property.state}"
       unless res.property.state.target
@@ -38,40 +44,44 @@ module Tuhura::OmfRc
       end
       res.property.state.since = Time.now.iso8601
     end
-    
+
     hook :before_release do |res|
       puts "RELEASING #{res}"
     end
-    
+
     configure :state do |res, value|
-            
+
       value = value.to_s.downcase.to_sym
       return value if res.property.state[:target] == value
-      return value if res.property.state[:current] == value      
+      return value if res.property.state[:current] == value
 
       unless VALID_TARGET_STATES.include? value
         res.inform :warn, reason: "Illegal target state '#{value}'. Only supporting '#{VALID_TARGET_STATES.join(', ')}'"
         return
       end
       res.property.state[:target] = value
-      
+
       OmfCommon.eventloop.after(0) do
         res.aim
       end
       res.property.state
     end
-    
+
+    configure :automatic_restart do |res, value|
+
+    end
+
     # Move state towards target_state
     work('aim') do |res|
       next unless target_state = res.property.state.target
       next if target_state == res.property.state.current
-      
+
       case target_state
       when :running then res.aim_for_running
       when :stopped then res.aim_for_stopped
       end
     end
-    
+
     work('aim_for_running') do |res|
       case current_state = res.property.state[:current]
       when :running
@@ -84,13 +94,27 @@ module Tuhura::OmfRc
         end
       when :installed
         res.run
+      when 'done.error'
+        if res.property.automatic_restart.active
+          delay = (res.property.automatic_restart.retry_delay || 0)
+          res.property.state.target = :running
+          res.property.state.restarting_at = (Time.now + delay).iso8601
+          res.change_state :restarting
+          OmfCommon.eventloop.after(delay) do
+            if res.property.state.current = :restarting && res.property.state.target = :running
+              (res.property.state.restarted ||= []) << Time.now.iso8601
+              res.property.state.delete(:restarting_at)
+              res.run
+            end
+          end
+        end
       when :done
         res.inform :done
       else
         res.inform :error, reason: "Don't know how to proceed from '#{current_state}' to 'running'."
       end
     end
-    
+
     work('install_package') do |res|
       pkg = res.property.package
       res.change_state :downloading
@@ -124,7 +148,7 @@ module Tuhura::OmfRc
                   when 'STARTED'
                     # ignore
                   else
-                    res.inform_warn "Unknown event '#{event_type}' while installing task package"                    
+                    res.inform_warn "Unknown event '#{event_type}' while installing task package"
                   end
                 end
               else
@@ -132,14 +156,14 @@ module Tuhura::OmfRc
               end
             end
           end
-        else  
+        else
           res.inform_error "Do not support download mechanism '#{type}'"
         end
       else
         res.inform_error "Can't parse package URL '#{pkg}'. Expected 'type:id'."
       end
     end
-    
+
     work('aim_for_stopped') do |res|
       case current_state = res.property.state.current#.to_s
       when :stopped
@@ -163,10 +187,10 @@ module Tuhura::OmfRc
       res.property.state.current = (value = value.to_sym)
       res.property.state.since = Time.now.iso8601
       res.property.state.delete(:target) if res.property.state[:target] == value
-      
+
       res.inform :status, {state: res.property.state.to_hash}, :ALL
     end
-    
+
     # Swich this Application RP into the 'stopped' state
     # (see the description of configure :state)
     #
@@ -179,13 +203,13 @@ module Tuhura::OmfRc
           begin
             # second, try sending TERM signal, wait another 4s to see
             # if the app acted on it...
-            debug "Signal 'TERM'"              
+            debug "Signal 'TERM'"
             @app.signal('TERM')
             sleep 4
             # finally, try sending KILL signal
             if @app
-              debug "Signal 'KILL'"              
-              @app.signal('KILL') 
+              debug "Signal 'KILL'"
+              @app.signal('KILL')
             end
             res.change_state 'stopped'
           rescue => err
@@ -194,7 +218,7 @@ module Tuhura::OmfRc
         end
       end
     end
-  
+
     # Swich this Application RP into the 'running' state
     # (see the description of configure :state)
     #
@@ -207,7 +231,7 @@ module Tuhura::OmfRc
         #cmd = "cd #{@tmpdir}; rvm jruby exec bundle exec ruby #{script}"
         args = res.property.script_args
         if oml_url = res.property.oml_url
-          args += " --oml-collect #{oml_url}"
+          args += " --oml-collect #{oml_url} --oml-id #{res.property.uid}"
         end
         ruby_opts = []
         if Dir.exist?(File.join(@tmpdir, 'lib'))
@@ -234,7 +258,7 @@ module Tuhura::OmfRc
           when 'STARTED'
             # nothing
           else
-            res.inform_warn "Unknown event '#{event_type}' while running task"                    
+            res.inform_warn "Unknown event '#{event_type}' while running task"
             # res.change_state 'running.warn'
             # res.aim
           end
@@ -242,11 +266,11 @@ module Tuhura::OmfRc
         res.property.pid = @app.pid
       end
     end
-    
+
     work 'process_event' do |res, event_type, msg|
       debug "#{event_type}:: #{msg}"
     end
-    
+
     # Return true if the parent resource can delete this resource
     #
     work 'reclaimable?' do |res|
@@ -255,10 +279,12 @@ module Tuhura::OmfRc
         true
       when :stopped
         true
+      when /failed$/
+        true
       else
         false
       end
     end
-    
+
   end
 end
