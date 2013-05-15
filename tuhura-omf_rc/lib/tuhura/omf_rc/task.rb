@@ -98,7 +98,7 @@ module Tuhura::OmfRc
         end
       when :installed
         res.run
-      when 'done.error'
+      when /done\.error/
         if res.restartable?
           delay = (res.property.automatic_restart.retry_delay || 0)
           res.property.state.target = :running
@@ -183,7 +183,7 @@ module Tuhura::OmfRc
       when :installed
         res.change_state 'stopped'
       else
-        res.inform :error, reason: "Don't know how to proceed from '#{current_state}' to 'running'."
+        res.inform :error, reason: "Don't know how to proceed from '#{current_state}' to 'stooped'."
       end
     end
 
