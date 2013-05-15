@@ -49,6 +49,9 @@ end
 op.on_tail '-m', '--mode MODE', "Set operation mode [#{$op_mode}]" do | mode |
   $op_mode = mode
 end
+op.on '-a', '--automatic_restart', "Restart task when exiting with done.error" do
+  aopts[:automatic_restart] = true
+end
 op.on_tail '-d', '--debug', "Set logging to DEBUG level" do
   opts[:logging][:level][:default] = 'debug'
   $debug = true
@@ -75,10 +78,10 @@ if r.length > 1
 end
 
 # Environment setup
-#OmfCommon.init(:developement, opts) 
+#OmfCommon.init(:developement, opts)
 
 def start_task(group_t, node_t, opts)
-  script_path = opts[:script_path] 
+  script_path = opts[:script_path]
   unless package_dir = opts[:package_dir]
     package_dir = File.dirname(script_path)
     script_path = File.basename(script_path)
@@ -98,7 +101,7 @@ def start_task(group_t, node_t, opts)
   end
   pkg_id = "#{node_t.id}/package"
   pkg_addr = OmfCommon.comm.broadcast_file(tar_file)
-  
+
   copts = {
     package: pkg_addr,
     script_path: script_path,
@@ -107,12 +110,13 @@ def start_task(group_t, node_t, opts)
     membership: group_t.id
   }
   copts[:ruby_version] = opts[:ruby_version] if opts[:ruby_version]
+  copts[:automatic_restart] = {active: true} if opts[:automatic_restart]
   node_t.create(:tuhura_task, copts)
 end
 
 def print_inform(msg, topic)
   if (src_topic = msg.src.id) == topic.id
-    puts "  #{topic.id}"        
+    puts "  #{topic.id}"
   else
     puts "  #{src_topic} via #{topic.id}"
   end
@@ -125,14 +129,14 @@ end
 #OmfCommon.init(:local, {}) do |el|
 OmfCommon.init($op_mode, opts) do |el|
   OmfCommon.comm.on_connected do |comm|
-    
+
     if $op_mode == :local
       require 'omf_rc'
       require 'omf_rc/resource_proxy/node'
       load File.join(File.dirname(__FILE__), '..', 'lib', 'tuhura', 'omf_rc', 'task.rb')
       node_rc = OmfRc::ResourceFactory.create(:node, uid: aopts[:resource_url])
     end
-    
+
     # Get handle on existing entity
     comm.subscribe(resource_name) do |node_t|
       node_t.on_subscribed do
@@ -144,7 +148,7 @@ OmfCommon.init($op_mode, opts) do |el|
         end
       end
     end
-    
+
     el.after(600) { el.stop }
   end
 end
