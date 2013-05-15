@@ -14,7 +14,7 @@ module Tuhura::OmfRc
     property :description, :default => ''
     property :package, :default => nil # package containing all the files necessary to execute task
     property :state, :default => {current: :initialised}
-    property :automatic_restart => {
+    property :automatic_restart, :default => {
       active: false, # set to true if task should be restarted on 'done.error'
       retries: 3, # Number of retry events before giving up (< 0 ...  try forever)
       retry_threshhold: 120,  # Seconds after which to reset the retry counter
