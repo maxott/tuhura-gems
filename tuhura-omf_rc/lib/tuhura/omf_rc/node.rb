@@ -94,7 +94,7 @@ module Tuhura::OmfRc
         dummy, fs, type, blocks, avail, used, used_pct, mount = m.to_a
         di << {
           mount: mount, disk: fs, ftype: type,
-          available: avail, used: used, used_pct: used_pct
+          available: avail.to_i, used: used.to_i, used_pct: used_pct[0 ... -1].to_i
         }
       }
 
