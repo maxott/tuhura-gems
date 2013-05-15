@@ -248,7 +248,7 @@ module Tuhura::OmfRc
         info "Executing '#{cmd}' in #{@tmpdir}"
         res.change_state :running
         @app = ExecApp.new(nil, cmd, true, @tmpdir) do |event_type, app_id, msg|
-          debug "<#{event_type}> #{msg}"
+          debug "<#{event_type}> #{msg}", res.uid
           case event_type.to_s
           when 'DONE.OK'
             @app = nil
