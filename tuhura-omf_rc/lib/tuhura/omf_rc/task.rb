@@ -99,13 +99,15 @@ module Tuhura::OmfRc
       when :installed
         res.run
       when 'done.error'
-        if res.property.automatic_restart.active
+        if res.restartable?
           delay = (res.property.automatic_restart.retry_delay || 0)
           res.property.state.target = :running
           res.property.state.restarting_at = (Time.now + delay).iso8601
           res.change_state :restarting
+          debug "Attempt to restart task after #{delay} seconds (#{res.property.state})"
           OmfCommon.eventloop.after(delay) do
-            if res.property.state.current = :restarting && res.property.state.target = :running
+            debug "Attempt to restart task now (#{res.property.state})"
+            if res.property.state.current == :restarting && res.property.state.target == :running
               (res.property.state.restarted ||= []) << Time.now.iso8601
               res.property.state.delete(:restarting_at)
               res.run
@@ -279,6 +281,8 @@ module Tuhura::OmfRc
     #
     work 'reclaimable?' do |res|
       case res.property.state.current
+      when 'done.error'
+        !res.restartable?
       when /done/
         true
       when :stopped
@@ -288,6 +292,11 @@ module Tuhura::OmfRc
       else
         false
       end
+    end
+
+    work 'restartable?' do |res|
+      debug "Restartable?: #{res.property.automatic_restart.active}"
+      res.property.automatic_restart.active
     end
 
   end
