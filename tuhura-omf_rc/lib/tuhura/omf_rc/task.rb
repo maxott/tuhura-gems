@@ -238,7 +238,7 @@ module Tuhura::OmfRc
         #cmd = "cd #{@tmpdir}; rvm jruby exec bundle exec ruby #{script}"
         args = res.property.script_args
         if oml_url = res.property.oml_url
-          args += " --oml-collect #{oml_url} --oml-id #{res.property.uid}"
+          args += " --oml-collect #{oml_url} --oml-id #{res.uid}"
         end
         ruby_opts = []
         if Dir.exist?(File.join(@tmpdir, 'lib'))
