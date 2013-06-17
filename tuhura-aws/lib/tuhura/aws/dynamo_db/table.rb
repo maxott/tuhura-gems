@@ -34,7 +34,7 @@ module Tuhura::AWS::DynamoDB
         if rk = schema[1]
           opts[:range_key] = { rk[0] => TYPE2TYPE[rk[1]] }
         end
-        @table = @db.tables.create(table_name, 10, 10, opts)
+        @table = @db.tables.create(table_name, 100, 1000, opts)
         puts "CREATING TABLE #{table_name} - #{@table.status}"
         sleep 1 while @table.status == :creating
       end
