@@ -1,44 +1,94 @@
 
 require 'json'
-require 'tuhura/common/sensation'
-require 'tuhura/ingestion/abstract_kafka_bridge'
+#require 'tuhura/common/sensation'
+require 'tuhura/ingestion/abstract_kafka_bridge2'
 
 # AbstractKafkaBridge::KAFKA_OPTS[:topic] = 'feedhistory0'
 # AbstractKafkaBridge::OML_OPTS[:appName] = 'feedhistory_bridge'
 
 module Tuhura::Ingestion
-  KAFKA_OPTS[:topic] = 'feedhistory0'
+  Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'feedhistory0'
   Tuhura::Common::OML::OML_OPTS[:appName] = 'sensation_from_kafka'
 
-  class FeedHistoryBridge < AbstractKafkaBridge
-    include Tuhura::Common::Sensation
+  class FeedHistoryBridge < AbstractKafkaBridge2
+    #include Tuhura::Common::Sensation
 
     def process(r, payload)
       user_id = r['user_id']
       served = r['served_epoch'].to_i
       ts_day = (served / 86400).to_i
+      ts_week = (ts_day / 7).to_i
+      ts_month = (ts_day / 24).to_i
+      res = []
       r['videos'].map do |v|
-        v['user_id'] = user_id
-        v['served'] = served
-        crc32 = Zlib::crc32()
-        key = create_key(ts_day, user_id, payload + v['video_id'])
-        ['default', key, {'f:uid' => user_id, 'f:msg' => v.to_json}]
+        unless video_id = v['video_id']
+          warn "Missing 'video_id' in record '#{v}'"
+          next
+        end
+
+        if recs = v.delete('recommendations')
+          t_name = "recommendation_w#{ts_week}"
+          recs.each do |rec|
+            id = rec['recommendation_id']
+            #res << [t_name, {recommendation_id: id}, rec]
+          end
+        end
+
+        if v['stemtags']
+          v['stemtags'] = v['stemtags'].map { |k, v| "#{k}:#{v.join(',')}" }
+        end
+        v.delete('thumbnails') # causing problems
+        res << ["video_m#{ts_month}", {video_id: video_id}, v]
+
+        event = {served: served, user_id: user_id, video_id: video_id}
+        res << ["feed_w#{ts_week}", {day: ts_day, video_key: "#{video_id}_#{user_id}_#{served}"}, event]
+      end
+      res
+    end
+
+    def get_table_for_group(group_name)
+      puts "GET TABLE: #{group_name}"
+      db_get_table(group_name, &method(:get_schema_for_table))
+    end
+
+    def get_schema_for_table(table_name)
+      case table_name
+      when /^recommendation_w/
+        [[:recommendation_id, :string]]
+      when /^video_m/
+        [[:video_id, :string]]
+      when /^feed_w/
+        [[:day, :integer], [:video_key, :string]]
+      else
+        raise "Unknown table '#{table_name}'"
       end
     end
-  
-    def get_table_for_group(group_name)
-      get_table("feed_history")
-    end
-  
-    def initialize(zk_opts, kafka_opts, hbase_opts, opts)
+
+    def initialize(opts)
       super
-      @table_regex = HBASE_OPTS[:test_mode] ? /^feed_history_test$/ : /^feed_history+$/
+      @table_regex = db_test_mode? ? /^feed_history_test$/ : /^feed_history+$/
+      @r = Random.new
     end
+
+    private
+
+    # def create_key(ts_day, user_id, v , payload)
+      # puts ts_day
+      # puts user_id
+      # puts v.keys.inspect
+      # puts v['user_id']
+      # #puts payload.keys.inspect
+      # exit
+    # end
   end
 end
 
 
 if $0 == __FILE__
-  options = {task: :inject, max_msgs: -1}
+  options = {
+    task: :inject,
+    max_msgs: -1
+
+  }
   Tuhura::Ingestion::FeedHistoryBridge.create(options).work(options)
 end
