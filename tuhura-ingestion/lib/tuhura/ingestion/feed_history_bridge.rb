@@ -30,7 +30,7 @@ module Tuhura::Ingestion
           t_name = "recommendation_w#{ts_week}"
           recs.each do |rec|
             id = rec['recommendation_id']
-            #res << [t_name, {recommendation_id: id}, rec]
+            res << [t_name, {recommendation_id: id}, rec]
           end
         end
 
@@ -38,7 +38,7 @@ module Tuhura::Ingestion
           v['stemtags'] = v['stemtags'].map { |k, v| "#{k}:#{v.join(',')}" }
         end
         v.delete('thumbnails') # causing problems
-        #res << ["video_m#{ts_month}", {video_id: video_id}, v]
+        res << ["video_m#{ts_month}", {video_id: video_id}, v]
 
         event = {served: served, user_id: user_id, video_id: video_id}
         res << ["feed_w#{ts_week}", {day: ts_day, video_key: "#{video_id}_#{user_id}_#{served}"}, event]

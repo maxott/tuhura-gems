@@ -44,8 +44,9 @@ module Tuhura::AWS::DynamoDB
     def put(events)
       puts "--- #{@table_name} -------"
       start = Time.now
-      items = @table.items
+      #items = @table.items
       i = 0
+      items = []
       events.each do |k, v|
         e = v.merge(k)
         e.each do |k, v|
@@ -53,11 +54,15 @@ module Tuhura::AWS::DynamoDB
           e[k] = '__F__' if v.is_a? FalseClass
         end
         begin
-          items.create(e)
+          #items.create(e)
+          items << e
           i += 1
         rescue ArgumentError => ex
           puts "ERROR: #{ex} - #{e.inspect}"
         end
+      end
+      items.each_slice(25) do |it|
+        @table.batch_put(it)
       end
       puts "----------- #{i}:#{1.0 * i / (Time.now - start)}"
       i
