@@ -3,7 +3,7 @@ require 'kafka'
 
 require 'tuhura/common/logger'
 require 'tuhura/common/oml'
-# require 'tuhura/common/zookeeper'
+require 'tuhura/common/state'
 require 'tuhura/common/database'
 
 require 'tuhura/ingestion'
@@ -20,6 +20,7 @@ module Tuhura::Ingestion
     include Tuhura::Common::Logger
     include Tuhura::Common::OML
     include Tuhura::Common::Database
+    include Tuhura::Common::State
     # include Tuhura::Common::Zookeeper
     # include Tuhura::Common::HBase
     #enable_logger
@@ -167,11 +168,13 @@ module Tuhura::Ingestion
       logger_init()
       oml_init(opts[:oml])
       db_init(opts[:database])
+      _init_state(opts[:state])
+
       @kafka_opts = KAFKA_OPTS.merge(opts[:kafka] || {})
       @topic = @kafka_opts[:topic]
 
       if (offset = @kafka_opts[:offset]) < 0
-        if offset_s = zk_get(@offset_path)
+        if offset_s = state_get(@offset_path)
           offset = offset_s.to_i
         else
           offset = 0
@@ -199,6 +202,21 @@ module Tuhura::Ingestion
       end
 
     end
+
+    def _init_state(opts)
+      state_init(opts)
+      unless db_test_mode?
+        path_prefix = "/incmg/kafka_bridge/#{@topic}"
+      else
+        path_prefix = "/incmg/kafka_bridge/test/#{@topic}"
+      end
+      @offset_path = "#{path_prefix}/offset"
+    end
+
+    def _persist_offset(offset)
+      state_put(@offset_path, offset)
+    end
+
 
   end # class
 end # module

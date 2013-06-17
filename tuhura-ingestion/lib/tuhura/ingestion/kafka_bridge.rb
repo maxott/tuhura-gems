@@ -22,8 +22,8 @@ ZOOKEEPER_OPTS = {
 }
 
 KAFKA_OPTS = {
-  :host => "10.129.80.2", 
-  :topic => "sensation0", 
+  :host => "10.129.80.2",
+  :topic => "sensation0",
   :offset => -1
 }
 
@@ -33,7 +33,7 @@ HBASE_OPTS = {
 
 OML_OPTS = {
   appName: 'kafka_bridge',
-  domain: 'benchmark', 
+  domain: 'benchmark',
   nodeID: "#{Socket.gethostbyname(Socket.gethostname)[0]}-#{Process.pid}",
   collect: 'file:-'
 }
@@ -82,7 +82,7 @@ class Work
     puts "*   You have 10 seconds to reconsider - just press Ctl-C "
     puts "*********************************************************"
     sleep 10
-    @hbase.tables.each do |t| 
+    @hbase.tables.each do |t|
       if t.name.match(/^s[0-9]+$/)
         puts ">>>>>> DROPPING #{t.name}"
         t.drop!
@@ -95,12 +95,12 @@ class Work
     total_count = 0
     indv_counts = {}
     bm_r = OML4R::Benchmark.bm('kafka_read')
-    bm_w = OML4R::Benchmark.bm('hbase_write')
+    bm_w = OML4R::Benchmark.bm('db_write')
     OML4R::Benchmark.bm('overall', periodic: reporting_interval) do |bm|
-      loop do 
+      loop do
         evt_blocks = {}
         msg_cnt = 0
-        bm_r.task do 
+        bm_r.task do
           records = @kafka_consumer.consume
           break if records.empty?
           records.each do |m|
@@ -131,7 +131,7 @@ class Work
         @zk.set path: @zk_path, data: @kafka_consumer.offset.to_s
         bm_w.report
         logger.info ">>>> Wrote #{cnt}/#{total_count} record(s)"
-        break if (max_count > 0 && total_count >= max_count) 
+        break if (max_count > 0 && total_count >= max_count)
       end
     end
     bm_r.stop
@@ -146,7 +146,7 @@ class Work
     @topic = kafka_opts[:topic]
     _init_zk(zk_opts, kafka_opts)
     @hbase_tables = {} # hold mapping from table name to its instance
-    @hbase = HBase.new hbase_opts 
+    @hbase = HBase.new hbase_opts
   end
 
   def _init_zk(zk_opts, kafka_opts)

@@ -4,8 +4,8 @@ module Tuhura::AWS::DynamoDB
   class Table
     include Tuhura::Common::Logger
 
-    def self.get(table_name, create_if_missing, connector, &get_schema)
-      schema = get_schema.call(table_name)
+    def self.get(table_name, create_if_missing, connector, &get_schema_proc)
+      schema = get_schema_proc ? get_schema_proc.call(table_name) : [[:key, :string]]
       puts "SCHEMA FOR: #{table_name} => #{schema}"
 
       self.new(table_name, schema, create_if_missing, connector)
@@ -61,6 +61,13 @@ module Tuhura::AWS::DynamoDB
       end
       puts "----------- #{i}:#{1.0 * i / (Time.now - start)}"
       i
+    end
+
+    def get(key)
+      puts "GET key: #{key}::#{key.class}"
+      value = @table.items[key].attributes.to_hash
+      puts "GET value: #{value}"
+      value
     end
   end
 end

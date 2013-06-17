@@ -8,7 +8,7 @@ require 'tuhura/ingestion/abstract_kafka_bridge2'
 
 module Tuhura::Ingestion
   Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'feedhistory0'
-  Tuhura::Common::OML::OML_OPTS[:appName] = 'sensation_from_kafka'
+  Tuhura::Common::OML::OML_OPTS[:appName] = 'feedhistory_from_kafka'
 
   class FeedHistoryBridge < AbstractKafkaBridge2
     #include Tuhura::Common::Sensation
@@ -38,7 +38,7 @@ module Tuhura::Ingestion
           v['stemtags'] = v['stemtags'].map { |k, v| "#{k}:#{v.join(',')}" }
         end
         v.delete('thumbnails') # causing problems
-        res << ["video_m#{ts_month}", {video_id: video_id}, v]
+        #res << ["video_m#{ts_month}", {video_id: video_id}, v]
 
         event = {served: served, user_id: user_id, video_id: video_id}
         res << ["feed_w#{ts_week}", {day: ts_day, video_key: "#{video_id}_#{user_id}_#{served}"}, event]

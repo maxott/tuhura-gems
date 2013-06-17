@@ -71,7 +71,7 @@ module Tuhura::Common
       Logging.logger.root.appenders = 'default_stdout'
       Logging.logger.root.level = :info
 
-      @logger = Logging::Logger.new(name)
+      @logger = Logging::Logger.new(name || self.class.to_s)
 
 
     end
