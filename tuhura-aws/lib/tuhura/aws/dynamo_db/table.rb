@@ -24,6 +24,7 @@ module Tuhura::AWS::DynamoDB
     #
     def initialize(table_name, schema, create_if_missing, connector)
       @table_name = table_name
+      @schema = schema
       @db = connector
       @table = @db.tables[table_name]
       unless @table.exists?
@@ -47,22 +48,33 @@ module Tuhura::AWS::DynamoDB
       #items = @table.items
       i = 0
       items = []
+      set = Set.new
+      keep_track = {}
       events.each do |k, v|
         e = v.merge(k)
         e.each do |k, v|
           e[k] = '__T__' if v.is_a? TrueClass
           e[k] = '__F__' if v.is_a? FalseClass
         end
-        begin
-          #items.create(e)
+        if set.add?(k)
+          keep_track[k] = v
           items << e
           i += 1
-        rescue ArgumentError => ex
-          puts "ERROR: #{ex} - #{e.inspect}"
+        else
+          #puts "DUPLICTAE: \n#{k} - #{v}\n#{k} - #{keep_track[k]}"
         end
       end
       items.each_slice(25) do |it|
-        @table.batch_put(it)
+        begin
+          @table.batch_put(it)
+        rescue Exception => ex
+          puts ex
+          puts @schema
+          (it.map {|r| r['recommendation_id']}.sort).each {|r| puts r}
+
+          it.each {|r| puts r}
+          raise ex
+        end
       end
       puts "----------- #{i}:#{1.0 * i / (Time.now - start)}"
       i
