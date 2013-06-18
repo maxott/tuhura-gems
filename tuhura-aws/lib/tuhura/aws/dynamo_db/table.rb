@@ -6,8 +6,6 @@ module Tuhura::AWS::DynamoDB
 
     def self.get(table_name, create_if_missing, connector, &get_schema_proc)
       schema = get_schema_proc ? get_schema_proc.call(table_name) : [[:key, :string]]
-      puts "SCHEMA FOR: #{table_name} => #{schema}"
-
       self.new(table_name, schema, create_if_missing, connector)
     end
 
@@ -23,6 +21,7 @@ module Tuhura::AWS::DynamoDB
     # Constructor
     #
     def initialize(table_name, schema, create_if_missing, connector)
+      logger_init(nil, top: false)
       @table_name = table_name
       @schema = schema
       @db = connector
@@ -35,15 +34,14 @@ module Tuhura::AWS::DynamoDB
           opts[:range_key] = { rk[0] => TYPE2TYPE[rk[1]] }
         end
         @table = @db.tables.create(table_name, 100, 1000, opts)
-        puts "CREATING TABLE #{table_name} - #{@table.status}"
+        debug "CREATING TABLE #{table_name} schema: #{schema} - status: #{@table.status}"
         sleep 1 while @table.status == :creating
       end
       #@table.provision_throughput :read_capacity_units => 10, :write_capacity_units => 20
-      puts "CREATED TABLE #{table_name} - #{@table.status}"
+      info "Using table #{table_name} - #{@table.status}"
     end
 
     def put(events)
-      puts "--- #{@table_name} -------"
       start = Time.now
       #items = @table.items
       i = 0
@@ -55,6 +53,9 @@ module Tuhura::AWS::DynamoDB
         e.each do |k, v|
           e[k] = '__T__' if v.is_a? TrueClass
           e[k] = '__F__' if v.is_a? FalseClass
+          if v.respond_to?(:each)
+            e[k] = v.to_json
+          end
         end
         if set.add?(k)
           keep_track[k] = v
@@ -76,7 +77,7 @@ module Tuhura::AWS::DynamoDB
           raise ex
         end
       end
-      puts "----------- #{i}:#{1.0 * i / (Time.now - start)}"
+      info "Wrote #{i} records at #{(1.0 * i / (Time.now - start)).round(1)} rec/sec to #{@table_name}"
       i
     end
 

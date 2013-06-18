@@ -47,7 +47,7 @@ module Tuhura::Ingestion
     end
 
     def get_table_for_group(group_name)
-      puts "GET TABLE: #{group_name}"
+      #puts "GET TABLE: #{group_name}"
       db_get_table(group_name, &method(:get_schema_for_table))
     end
 
