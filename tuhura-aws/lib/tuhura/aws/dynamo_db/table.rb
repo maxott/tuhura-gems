@@ -34,11 +34,11 @@ module Tuhura::AWS::DynamoDB
           opts[:range_key] = { rk[0] => TYPE2TYPE[rk[1]] }
         end
         @table = @db.tables.create(table_name, 100, 1000, opts)
-        debug "CREATING TABLE #{table_name} schema: #{schema} - status: #{@table.status}"
+        info "CREATING TABLE #{table_name} schema: #{schema} - status: #{@table.status}"
         sleep 1 while @table.status == :creating
       end
       #@table.provision_throughput :read_capacity_units => 10, :write_capacity_units => 20
-      info "Using table #{table_name} - #{@table.status}"
+      debug "Using table #{table_name} - #{@table.status}"
     end
 
     def put(events)

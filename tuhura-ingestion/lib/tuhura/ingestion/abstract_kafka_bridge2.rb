@@ -168,10 +168,11 @@ module Tuhura::Ingestion
       logger_init()
       oml_init(opts[:oml])
       db_init(opts[:database])
-      _init_state(opts[:state])
 
       @kafka_opts = KAFKA_OPTS.merge(opts[:kafka] || {})
       @topic = @kafka_opts[:topic]
+      _init_state(@topic, opts[:state])
+
 
       if (offset = @kafka_opts[:offset]) < 0
         if offset_s = state_get(@offset_path)
@@ -182,7 +183,7 @@ module Tuhura::Ingestion
         @kafka_opts[:offset] = offset
       end
       @kafka_consumer = Kafka::Consumer.new(@kafka_opts)
-      @logger.info "Reading Kafka queue '#{@kafka_opts[:topic]}' with offset '#{@kafka_opts[:offset]}'"
+      @logger.info "Reading Kafka queue '#{@topic}' with offset '#{@kafka_opts[:offset]}'"
     end
 
     def _parse_and_process(kafka_msg)
@@ -203,12 +204,12 @@ module Tuhura::Ingestion
 
     end
 
-    def _init_state(opts)
+    def _init_state(topic, opts)
       state_init(opts)
       unless db_test_mode?
-        path_prefix = "/incmg/kafka_bridge/#{@topic}"
+        path_prefix = "/incmg/kafka_bridge/#{topic}"
       else
-        path_prefix = "/incmg/kafka_bridge/test/#{@topic}"
+        path_prefix = "/incmg/kafka_bridge/test/#{topic}"
       end
       @offset_path = "#{path_prefix}/offset"
     end

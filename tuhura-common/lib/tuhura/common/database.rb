@@ -7,7 +7,10 @@ module Tuhura::Common
 
     DB_OPTS = {
       provider: 'dynamo_db',
-      test_mode: false
+      test_mode: false,
+      dynamo_db: {
+        region: 'us-west-2'
+      }
     }
 
     attr_reader :db_opts

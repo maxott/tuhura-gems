@@ -28,6 +28,8 @@ module Tuhura::AWS::DynamoDB
     # @option opts [String] :aws_access_key_id The subject
     # @option opts [String] :aws_secret_access_key From address
     def initialize(opts)
+      logger_init(nil, top: false)
+
       unless  token = opts[:aws_creds]
         raise "Missing option ':aws_creds'"
       end
@@ -35,7 +37,8 @@ module Tuhura::AWS::DynamoDB
       co = {
         access_key_id: key,
         secret_access_key: secret
-      }
+      }.merge(opts[:dynamo_db] || {})
+      info "Connecting to DynamoDB with '#{co}'"
       @db = AWS::DynamoDB.new(co)
     end
   end
