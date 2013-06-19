@@ -3,9 +3,6 @@ require 'json'
 #require 'tuhura/common/sensation'
 require 'tuhura/ingestion/abstract_kafka_bridge2'
 
-# AbstractKafkaBridge::KAFKA_OPTS[:topic] = 'feedhistory0'
-# AbstractKafkaBridge::OML_OPTS[:appName] = 'feedhistory_bridge'
-
 module Tuhura::Ingestion
   Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'feedhistory0'
   Tuhura::Common::OML::OML_OPTS[:appName] = 'feedhistory_from_kafka'
@@ -40,16 +37,16 @@ module Tuhura::Ingestion
         v.delete('thumbnails') # causing problems
         res << ["video_m#{ts_month}", {video_id: video_id}, v]
 
+        puts '----'
+        puts v.map { |k,v| "#{k}(#{v.class}): #{v.inspect}" }
+
+
         event = {served: served, user_id: user_id, video_id: video_id}
         res << ["feed_w#{ts_week}", {day: ts_day, video_key: "#{video_id}_#{user_id}_#{served}"}, event]
       end
       res
     end
 
-    def get_table_for_group(group_name)
-      #puts "GET TABLE: #{group_name}"
-      db_get_table(group_name, &method(:get_schema_for_table))
-    end
 
     def get_schema_for_table(table_name)
       case table_name

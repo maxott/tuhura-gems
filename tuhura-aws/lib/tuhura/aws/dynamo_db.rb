@@ -19,8 +19,10 @@ module Tuhura::AWS::DynamoDB
     include Tuhura::Common::Logger
 
     def get_table(table_name, create_if_missing = false, &get_schema)
-      Table.get(table_name, create_if_missing, @db, &get_schema)
+      Table.get(table_name, create_if_missing, self, &get_schema)
     end
+
+    attr_reader :opts
 
     # Constructor
     #
@@ -29,17 +31,28 @@ module Tuhura::AWS::DynamoDB
     # @option opts [String] :aws_secret_access_key From address
     def initialize(opts)
       logger_init(nil, top: false)
+      @opts = opts
+puts "DB: #{opts}"
+#raise "EXIT"
+      # unless  token = opts[:aws_creds]
+        # raise "Missing option ':aws_creds'"
+      # end
+      # key, secret = token.split(':')
+      # co = {
+        # access_key_id: key,
+        # secret_access_key: secret
+      # }.merge(opts[:dynamo_db] || {})
+      # info "Connecting to DynamoDB with '#{co}'"
+      # @db = AWS::DynamoDB.new(co)
+      @db = AWS::DynamoDB.new()
+    end
 
-      unless  token = opts[:aws_creds]
-        raise "Missing option ':aws_creds'"
-      end
-      key, secret = token.split(':')
-      co = {
-        access_key_id: key,
-        secret_access_key: secret
-      }.merge(opts[:dynamo_db] || {})
-      info "Connecting to DynamoDB with '#{co}'"
-      @db = AWS::DynamoDB.new(co)
+    def no_insert_mode?
+      @opts[:no_insert]
+    end
+
+    def connector()
+      @db
     end
   end
 end

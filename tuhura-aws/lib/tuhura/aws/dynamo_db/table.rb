@@ -4,9 +4,9 @@ module Tuhura::AWS::DynamoDB
   class Table
     include Tuhura::Common::Logger
 
-    def self.get(table_name, create_if_missing, connector, &get_schema_proc)
+    def self.get(table_name, create_if_missing, database, &get_schema_proc)
       schema = get_schema_proc ? get_schema_proc.call(table_name) : [[:key, :string]]
-      self.new(table_name, schema, create_if_missing, connector)
+      self.new(table_name, schema, create_if_missing, database)
     end
 
     TYPE2TYPE = {
@@ -20,11 +20,13 @@ module Tuhura::AWS::DynamoDB
 
     # Constructor
     #
-    def initialize(table_name, schema, create_if_missing, connector)
+    def initialize(table_name, schema, create_if_missing, database)
       logger_init(nil, top: false)
       @table_name = table_name
       @schema = schema
-      @db = connector
+      @database = database
+      @db = database.connector
+      @no_insert_mode = database.no_insert_mode?
       @table = @db.tables[table_name]
       unless @table.exists?
         opts = {}
@@ -65,6 +67,11 @@ module Tuhura::AWS::DynamoDB
           #puts "DUPLICTAE: \n#{k} - #{v}\n#{k} - #{keep_track[k]}"
         end
       end
+      if @no_insert_mode # test
+        info "Would have written #{i} records"
+        return i
+      end
+
       items.each_slice(25) do |it|
         begin
           @table.batch_put(it)

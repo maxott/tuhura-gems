@@ -8,12 +8,14 @@ require 'tuhura/common/database'
 
 require 'tuhura/ingestion'
 
+$default_provider = 'aws'
+
 module Tuhura::Ingestion
 
   class AbstractKafkaBridge2
 
     KAFKA_OPTS = {
-      offset: -1,
+      #offset: -1,
       host: 'cloud1.tempo.nicta.org.au'
     }
 
@@ -42,8 +44,14 @@ module Tuhura::Ingestion
         op.on('-h', '--host HOST', "Name of Kafka host [#{KAFKA_OPTS[:host]}]" ) do |h|
           KAFKA_OPTS[:host] = h
         end
-        op.on('', '--aws-creds IDSECRET', "AWS Credentials" ) do |token|
-          (options[:database] ||= {})[:aws_creds] = token
+
+        if $default_provider == 'aws'
+          require 'tuhura/aws'
+          Tuhura::AWS.configure_opts(op)
+        end
+
+        op.on(nil, '--db-noinsert', "Test mode. Do NOT insert data into database [#{Tuhura::Common::Database::DB_OPTS[:no_insert]}]" ) do
+          (options[:database] ||= {})[:no_insert] = true
         end
         op.on(nil, '--test', "Test mode. Append '-test' to all created HBASE tables [#{Tuhura::Common::Database::DB_OPTS[:test_mode]}]" ) do
           (options[:database] ||= {})[:test_mode] = true
@@ -160,7 +168,8 @@ module Tuhura::Ingestion
     end
 
     def get_table_for_group(group_name)
-      db_get_table(group_name)
+      #puts "GET TABLE: #{group_name}"
+      db_get_table(group_name, &method(:get_schema_for_table))
     end
 
     def initialize(opts)
@@ -174,7 +183,7 @@ module Tuhura::Ingestion
       _init_state(@topic, opts[:state])
 
 
-      if (offset = @kafka_opts[:offset]) < 0
+      unless offset = @kafka_opts[:offset]
         if offset_s = state_get(@offset_path)
           offset = offset_s.to_i
         else
