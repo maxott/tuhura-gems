@@ -5,9 +5,11 @@ require 'tuhura/common/logger'
 
 module Tuhura::AWS
   module DynamoDB
+    @@connector = nil # singleton
 
     def self.create(opts)
-      Connector.new(opts)
+      # Not thread safe
+      @@connector ||= Connector.new(opts)
     end
   end
 end

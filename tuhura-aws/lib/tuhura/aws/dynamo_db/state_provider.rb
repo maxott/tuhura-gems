@@ -1,5 +1,5 @@
 require 'tuhura/aws'
-require 'aws/dynamo_db'
+require 'tuhura/aws/dynamo_db'
 require 'tuhura/common/logger'
 require 'json'
 
@@ -84,11 +84,8 @@ module Tuhura::AWS::DynamoDB
     end
 
     def initialize(consumer, opts = {})
-      unless consumer.respond_to? :db_get_table
-        raise "Can't use this provider without a configured database provider in '#{consumer}'"
-      end
       logger_init(nil, top: false)
-      @table = consumer.db_get_table('__tuhura_state__')
+      @table = Tuhura::AWS::DynamoDB::create(opts).get_table('__tuhura_state__')
     end
 
     # Use this methods for any operation on @table. It will retry

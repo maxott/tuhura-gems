@@ -45,11 +45,18 @@ module Tuhura::Ingestion
           KAFKA_OPTS[:host] = h
         end
 
+        op.on('-a', '--avro-decl FILE', "File containing AVRO definitions for records" ) do |af|
+          options[:avro_file] = af
+        end
+
         if $default_provider == 'aws'
           require 'tuhura/aws'
           Tuhura::AWS.configure_opts(op)
         end
 
+        op.on('', '--db-provider PROVIDER', "Provider for database capability [#{Tuhura::Common::Database::DB_OPTS[:provider]}]" ) do |provider|
+          (options[:database] ||= {})[:provider] = provider
+        end
         op.on(nil, '--db-noinsert', "Test mode. Do NOT insert data into database [#{Tuhura::Common::Database::DB_OPTS[:no_insert]}]" ) do
           (options[:database] ||= {})[:no_insert] = true
         end
@@ -182,7 +189,6 @@ module Tuhura::Ingestion
       @topic = @kafka_opts[:topic]
       _init_state(@topic, opts[:state])
 
-
       unless offset = @kafka_opts[:offset]
         if offset_s = state_get(@offset_path)
           offset = offset_s.to_i
@@ -191,6 +197,7 @@ module Tuhura::Ingestion
         end
         @kafka_opts[:offset] = offset
       end
+      info "Kafka options: #{@kafka_opts}"
       @kafka_consumer = Kafka::Consumer.new(@kafka_opts)
       @logger.info "Reading Kafka queue '#{@topic}' with offset '#{@kafka_opts[:offset]}'"
     end

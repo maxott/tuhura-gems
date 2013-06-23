@@ -5,13 +5,19 @@ require 'tuhura/ingestion/abstract_kafka_bridge2'
 require 'active_support/core_ext'
 
 module Tuhura::Ingestion
-  Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'sensation0'
-  Tuhura::Common::OML::OML_OPTS[:appName] = 'sensation_from_kafka'
+  Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'user'
+  Tuhura::Common::OML::OML_OPTS[:appName] = 'user_from_kafka'
 
-  class SensationFromKafka < AbstractKafkaBridge2
+  # Read user information from Kafka queues
+  #
+  class UserFromKafka < AbstractKafkaBridge2
     #include Tuhura::Common::Sensation
 
     def process(r, payload)
+      puts r.inspect
+      puts payload.inspect
+      exit
+
       r.delete("user_key")
       r.delete("access_token_hash")
 
@@ -71,27 +77,27 @@ module Tuhura::Ingestion
           end
 
           res = nil
-          case group_name
-          when /^sen_1_/, /^sen_9_/
-            unless (video_ids = r['video_ids']).is_a?(Array)
-              r['video_ids'] = [video_ids]
-              res = r
-            end
-          when /^sen_29_/
-            index = ["connected", "connecting", "disconnected", "disconnecting", "suspended"].index(r['state'].downcase)
-            unless index.nil?
-              r['state'] = index
-              res = r
-            end
-
-          when /^sen_24_/
-            index = ["gps", "network"].index(r['provider'].downcase)
-            unless index.nil?
-              r['provider'] = index
-              res = r
-            end
-
-          end
+          # case group_name
+          # when /^sen_1_/, /^sen_9_/
+            # unless (video_ids = r['video_ids']).is_a?(Array)
+              # r['video_ids'] = [video_ids]
+              # res = r
+            # end
+          # when /^sen_29_/
+            # index = ["connected", "connecting", "disconnected", "disconnecting", "suspended"].index(r['state'].downcase)
+            # unless index.nil?
+              # r['state'] = index
+              # res = r
+            # end
+#
+          # when /^sen_24_/
+            # index = ["gps", "network"].index(r['provider'].downcase)
+            # unless index.nil?
+              # r['provider'] = index
+              # res = r
+            # end
+#
+          # end
           #puts "--- #{group_name} -- #{res}"
           res
         end
@@ -103,36 +109,27 @@ module Tuhura::Ingestion
     def initialize(opts)
       super
 
-      unless af = opts.delete(:avro_file)
-        raise "Missing AVRO mapping file"
-      end
-      @avro = {}
-      avro = JSON.load(File.open(af))
-      avro.each do |r|
-        name = r['name']
-        _add_avro_declaration(r['name'], r)
-        (r['aliases'] || []).each {|a| _add_avro_declaration(a, r)}
-      end
+      # unless af = opts.delete(:avro_file)
+        # raise "Missing AVRO mapping file"
+      # end
+      # @avro = {}
+      # avro = JSON.load(File.open(af))
+      # avro.each do |r|
+        # name = r['name']
+        # _add_avro_declaration(r['name'], r)
+        # (r['aliases'] || []).each {|a| _add_avro_declaration(a, r)}
+      # end
 
       #sensation_init
-      @table_regex = db_test_mode? ? /^sen[0-9]+_test$/ : /^sen[0-9]+$/
+      @table_regex = db_test_mode? ? /^user+_test$/ : /^user+$/
       @r = Random.new
     end
 
-    def _add_avro_declaration(name, declaration)
-      return unless name.start_with? 'sen_'
-      #puts declaration['fields'].inspect
-      if @avro.key? name
-        warn "Duplicate type declaration '#{name}'"
-      else
-        @avro[name] = declaration['fields']
-      end
-    end
   end
 end
 
 if $0 == __FILE__
   options = {task: :inject, max_msgs: -1}
-  Tuhura::Ingestion::SensationFromKafka.create(options).work(options)
+  Tuhura::Ingestion::UserFromKafka.create(options).work(options)
 end
 

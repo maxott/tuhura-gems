@@ -78,6 +78,9 @@ module Tuhura::Common
       when 'dynamo_db'
         require 'tuhura/aws/dynamo_db'
         @db = Tuhura::AWS::DynamoDB.create(opts)
+      when 's3'
+        require 'tuhura/aws/s3'
+        @db = Tuhura::AWS::S3.create(opts)
       else
         raise "Unknown database provider '#{provider}'"
       end
