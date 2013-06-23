@@ -21,7 +21,7 @@ module Tuhura::AWS::S3
       @no_insert_mode = @s3_connector.no_insert_mode?
 
       file_name = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}.avr")
-      puts "FILE_NAME: #{file_name}"
+      #puts "FILE_NAME: #{file_name}"
       @file = File.open(file_name, 'wb')
       @unknown_schema = false
       unless schema[:cols]

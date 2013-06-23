@@ -80,7 +80,7 @@ module Tuhura::AWS::S3
         "aliases" => aliases,
         "fields" => fields
       }
-      puts "SCHEMA(#{name}): #{schema_desc}"
+      #puts "SCHEMA(#{name}): #{schema_desc}"
       @avro_schema = Avro::Schema.parse(schema_desc.to_json)
       @writer = Avro::IO::DatumWriter.new(@avro_schema)
       @dw = Avro::DataFile::Writer.new(out_stream, @writer, @avro_schema)
