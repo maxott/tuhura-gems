@@ -17,6 +17,10 @@ module Tuhura
       op.on('', '--aws-region REGION', "AWS Region" ) do |region|
         ::AWS.config(region: region) #'us-west-2'
       end
+      op.on('', '--aws-s3-data-dir DIR', "Local directory to store temporary S3 file" ) do |dir|
+        require 'tuhura/aws/s3'
+        Tuhura::AWS::S3::DEFAULTS[:data_dir] = dir
+      end
     end
   end
 end

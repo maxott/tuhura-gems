@@ -20,12 +20,14 @@ module Tuhura::AWS::S3
       @initialized = false
       @no_insert_mode = @s3_connector.no_insert_mode?
 
-      @file = File.open("#{@table_name}.avr", 'wb')
+      file_name = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}.avr")
+      puts "FILE_NAME: #{file_name}"
+      @file = File.open(file_name, 'wb')
       @unknown_schema = false
-      unless schema
+      unless schema[:cols]
         # unknown schema
         @unknown_schema = true
-        schema = [['msg', :string]]
+        schema[:cols] = [['msg', :string]]
       end
       @schema = schema
       @avro_writer = AvroWriter.new(table_name, schema, @file)

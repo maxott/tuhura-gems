@@ -44,7 +44,7 @@ module Tuhura::AWS::S3
 
     # Constructor
     #
-    # @param schema [Array] - Containing [name, type]
+    # @param schema [Hash] - Containing [name, cols]
     # @param out_stream [IO] - Where to write the AVRO blocks to
     # @param aliases [Array] - Additional aliases
     #
@@ -54,7 +54,7 @@ module Tuhura::AWS::S3
       @name = name
       @defaults = {}
       @boolean_fields = []
-      fields = schema.map do |n, t, default|
+      fields = schema[:cols].map do |n, t, default|
         #t = t.to_s
         n = n.to_s
         unless type = t.is_a?(Class) ? CLASS2TYPE[t.to_s] : STRING2TYPE[t.to_s]
@@ -76,11 +76,11 @@ module Tuhura::AWS::S3
       @keys = fields.map {|f| f['name']}
       schema_desc = {
         "type" => "record",
-        "name" => name,
+        "name" => schema[:name] || name,
         "aliases" => aliases,
         "fields" => fields
       }
-      #puts "SCHEMA(#{name}): #{schema_desc}"
+      puts "SCHEMA(#{name}): #{schema_desc}"
       @avro_schema = Avro::Schema.parse(schema_desc.to_json)
       @writer = Avro::IO::DatumWriter.new(@avro_schema)
       @dw = Avro::DataFile::Writer.new(out_stream, @writer, @avro_schema)

@@ -34,7 +34,7 @@ module Tuhura::Ingestion
       schema_name = table_name.split('_')[0 ... -1].join('_')
       unless fields = @avro[schema_name]
         warn "Unknown sensation ID '#{table_name}'"
-        return nil
+        return {name: schema_name}
       end
       schema = [
         ['day', :integer], ['range', :string],
@@ -58,7 +58,7 @@ module Tuhura::Ingestion
         type = f['type'].is_a?(Hash) ? f['type'] : f['type'].to_sym
         schema << [f['name'].underscore, type]
       end
-      schema
+      {name: schema_name, primary: 'day', range: 'range', cols: schema}
     end
 
     def get_table_for_group(group_name)

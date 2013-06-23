@@ -5,6 +5,9 @@ require 'tuhura/common/logger'
 
 module Tuhura::AWS
   module S3
+    DEFAULTS = {
+      data_dir: '/tmp'
+    }
 
     def self.create(opts)
       Connector.new(opts)
@@ -28,8 +31,8 @@ module Tuhura::AWS::S3
     #
     # @param [Hash] opts the options to establish a connection to AWS
     def initialize(opts)
-      logger_init(nil, top: false)
-      @opts = opts
+      @opts = Tuhura::AWS::S3::DEFAULTS.merge(opts)
+      logger_init(@opts[:logger], top: false)
     end
 
     def no_insert_mode?
