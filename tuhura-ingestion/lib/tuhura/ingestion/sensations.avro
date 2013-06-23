@@ -1,0 +1,1837 @@
+//
+// DO NOT EDIT! Automatically generated on 2013-06-21 20:39:20 +1000
+// from files found in /Users/max/src/SMCD/android/Incoming/src/com/incoming/au/sensation.
+//
+[
+  {
+    "type": "enum",
+    "name": "PlayerTypeGesture",
+    "symbols": [
+      "swipe_next",
+      "swipe_prev",
+      "playall",
+      "click_next_button",
+      "click_prev_buton",
+      "click_list"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "PhoneOrientation",
+    "symbols": [
+      "portrait",
+      "landscape"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "FacebookTimelineState",
+    "symbols": [
+      "added",
+      "removed"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "FacebookTimelineMessageState",
+    "symbols": [
+      "posted_successful",
+      "posted_failed",
+      "removed_successful",
+      "removed_failed",
+      "confirmed_successful",
+      "confirmed_failed"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "ControllerState",
+    "symbols": [
+      "shown",
+      "hidden"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "RecommendationWidgetAction",
+    "symbols": [
+      "next",
+      "previous",
+      "hide"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "SearchType",
+    "symbols": [
+      "keyboard",
+      "video_tag",
+      "source_name",
+      "author_name",
+      "recommendation"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "Priority",
+    "symbols": [
+      "low",
+      "high",
+      "normal"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "AlgorithRunningState",
+    "symbols": [
+      "cold_start",
+      "training",
+      "trained"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "InterstitialId",
+    "symbols": {
+      "error_network": {
+        "id": -100,
+        "message": "error network"
+      },
+      "error_nothing_found": {
+        "id": -101,
+        "message": "Nothing found"
+      },
+      "error_parsing": {
+        "id": -102,
+        "message": "Error while parsing"
+      },
+      "start": {
+        "id": 1,
+        "message": "start"
+      },
+      "hide": {
+        "id": 2,
+        "message": "hide"
+      },
+      "ready": {
+        "id": 3,
+        "message": "ready"
+      },
+      "sso_facebook": {
+        "id": 100,
+        "message": "FacebookSSO"
+      },
+      "sso_youtube": {
+        "id": 101,
+        "message": "YoutubeSSO"
+      },
+      "sso_google": {
+        "id": 102,
+        "message": "GoogleSSO"
+      },
+      "sso_twitter": {
+        "id": 103,
+        "message": "TwitterSSO"
+      },
+      "sso_linkedin": {
+        "id": 104,
+        "message": "LinkedInSSO"
+      },
+      "sso_daily_motion": {
+        "id": 105,
+        "message": "DailyMotionSSO"
+      },
+      "enable_wifi": {
+        "id": 106,
+        "message": "enable_wifi"
+      },
+      "add_source": {
+        "id": 107,
+        "message": "add_source"
+      },
+      "intent": {
+        "id": 108,
+        "message": "intent"
+      },
+      "rate_no_thanks": {
+        "id": 109,
+        "message": "rate_no_thanks"
+      },
+      "view": {
+        "id": 110,
+        "message": "view"
+      },
+      "api": {
+        "id": 111,
+        "message": "api"
+      },
+      "sso_vimeo": {
+        "id": 112,
+        "message": "VimeoSSO"
+      }
+    }
+  },
+  {
+    "type": "enum",
+    "name": "SeekType",
+    "symbols": [
+      "start",
+      "stop"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "SoundChangeAction",
+    "symbols": [
+      "button",
+      "swipe"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "SliderAccessAction",
+    "symbols": [
+      "no_action",
+      "quit",
+      "swipe",
+      "menu",
+      "top",
+      "no_video_found"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "InformationViewComponent",
+    "symbols": [
+      "page_info",
+      "page_because",
+      "page_next"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "LocationProvider",
+    "symbols": [
+      "gps",
+      "network"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "NetworkState",
+    "symbols": [
+      "connected",
+      "connecting",
+      "disconnected",
+      "disconnecting",
+      "suspended"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "NetworkType",
+    "symbols": [
+      "cellular",
+      "wifi"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "CellSubtype",
+    "symbols": [
+      "unknown",
+      "gprs",
+      "edge",
+      "umts",
+      "cdma",
+      "evdo_0",
+      "evdo_a",
+      "one_rtt",
+      "hspda",
+      "hsupa",
+      "hspa",
+      "iden",
+      "evdo_b",
+      "lte",
+      "ehrpd",
+      "hspap"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "CellServiceState",
+    "symbols": [
+      "in_service",
+      "out_of_service",
+      "emergency_only",
+      "power_off"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "CallState",
+    "symbols": [
+      "idle",
+      "off_hook",
+      "ringing"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "CellDataState",
+    "symbols": [
+      "disconnected",
+      "connecting",
+      "connected",
+      "suspended"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "Section",
+    "symbols": [
+      "downloaded",
+      "queue",
+      "history"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "PlayerActionType",
+    "symbols": [
+      "CONTROLLER",
+      "POP_UP",
+      "STOP_WATCHING"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "StorageType",
+    "symbols": [
+      "DEVICE",
+      "EXTERNAL"
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "NotificationType",
+    "symbols": [
+      "PROGRESS",
+      "LATEST_DOWNLOADED",
+      "RECOMMENDED"
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerOpen",
+    "aliases": [
+      "sen_1"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "userId",
+        "type": "int"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "positionInList",
+        "type": "int"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      },
+      {
+        "name": "section",
+        "type": "Section"
+      },
+      {
+        "name": "videoIds",
+        "type": {
+          "type": "array",
+          "items": "string"
+        }
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerPlaying",
+    "aliases": [
+      "sen_4"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerPaused",
+    "aliases": [
+      "sen_6"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      },
+      {
+        "name": "videoTimeWatched",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerEnded",
+    "aliases": [
+      "sen_7"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerClose",
+    "aliases": [
+      "sen_8"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerReopen",
+    "aliases": [
+      "sen_9"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "positionInList",
+        "type": "int"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      },
+      {
+        "name": "section",
+        "type": "Section"
+      },
+      {
+        "name": "videoIds",
+        "type": {
+          "type": "array",
+          "items": "string"
+        }
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerSeek",
+    "aliases": [
+      "sen_10"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      },
+      {
+        "name": "seekType",
+        "type": "SeekType"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerShare",
+    "aliases": [
+      "sen_12"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      },
+      {
+        "name": "action_type",
+        "type": "PlayerActionType"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "UserRatesVideo",
+    "aliases": [
+      "sen_15"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "videoPreviousRate",
+        "type": "int"
+      },
+      {
+        "name": "videoNewRate",
+        "type": "int"
+      },
+      {
+        "name": "scoreAlfredo",
+        "type": "double"
+      },
+      {
+        "name": "scoreBolognese",
+        "type": "double"
+      },
+      {
+        "name": "action_type",
+        "type": "PlayerActionType"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "DiscoveryChannel",
+    "aliases": [
+      "sen_17"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VideoDeleted",
+    "aliases": [
+      "sen_18"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VolumeChanged",
+    "aliases": [
+      "sen_19"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "volume",
+        "type": "float"
+      },
+      {
+        "name": "soundChangeType",
+        "type": "SoundChangeAction"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "WlanState",
+    "aliases": [
+      "sen_20"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "linkConnected",
+        "type": "boolean"
+      },
+      {
+        "name": "linkUsable",
+        "type": "boolean"
+      },
+      {
+        "name": "ssid",
+        "type": "string"
+      },
+      {
+        "name": "bssid",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "Brightness",
+    "aliases": [
+      "sen_22"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "val_1",
+        "type": "float"
+      },
+      {
+        "name": "val_2",
+        "type": "float"
+      },
+      {
+        "name": "val_3",
+        "type": "float"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "BatteryLevel",
+    "aliases": [
+      "sen_23"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "level",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "Location",
+    "aliases": [
+      "sen_24"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "userId",
+        "type": "int"
+      },
+      {
+        "name": "latitude",
+        "type": "double"
+      },
+      {
+        "name": "longitude",
+        "type": "double"
+      },
+      {
+        "name": "altitude",
+        "type": "int"
+      },
+      {
+        "name": "bearing",
+        "type": "float"
+      },
+      {
+        "name": "speed",
+        "type": "float"
+      },
+      {
+        "name": "accuracy",
+        "type": "float"
+      },
+      {
+        "name": "provider",
+        "type": "LocationProvider"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "UserPresence",
+    "aliases": [
+      "sen_25"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "statement",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "ChargeStatus",
+    "aliases": [
+      "sen_26"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "status",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "ForegroundApp",
+    "aliases": [
+      "sen_28"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "package_name",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NetworkStatus",
+    "aliases": [
+      "sen_29"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "userId",
+        "type": "int"
+      },
+      {
+        "name": "state",
+        "type": "NetworkState"
+      },
+      {
+        "name": "type",
+        "type": "NetworkType"
+      },
+      {
+        "name": "subtype",
+        "type": "CellSubtype"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CellServiceStatus",
+    "aliases": [
+      "sen_30"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "state",
+        "type": "CellServiceState"
+      },
+      {
+        "name": "operator_alpha",
+        "type": "string"
+      },
+      {
+        "name": "roaming",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CallStatus",
+    "aliases": [
+      "sen_31"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "state",
+        "type": "CallState"
+      },
+      {
+        "name": "incoming_number",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CellSignalStrengthChange",
+    "aliases": [
+      "sen_32"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "gsm",
+        "type": "boolean"
+      },
+      {
+        "name": "strength",
+        "type": "int"
+      },
+      {
+        "name": "errorrate",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CellDataConnectionStatus",
+    "aliases": [
+      "sen_33"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "state",
+        "type": "CellDataState"
+      },
+      {
+        "name": "type",
+        "type": "CellSubtype"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CellId",
+    "aliases": [
+      "sen_36"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "lac",
+        "type": "int"
+      },
+      {
+        "name": "cid",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "WlanScan",
+    "aliases": [
+      "sen_37"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "ssid",
+        "type": "string"
+      },
+      {
+        "name": "bssid",
+        "type": "string"
+      },
+      {
+        "name": "rssi",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "BluetoothScan",
+    "aliases": [
+      "sen_41"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "address",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "HeadphoneConnectionEvent",
+    "aliases": [
+      "sen_42"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "state",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "InformationView",
+    "aliases": [
+      "sen_300"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "component",
+        "type": "InformationViewComponent"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "activity",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SetVideoPriority",
+    "aliases": [
+      "sen_307"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "score",
+        "type": "double"
+      },
+      {
+        "name": "priority",
+        "type": "Priority"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VideoDeleteUnprefetchable",
+    "aliases": [
+      "sen_308"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "Search",
+    "aliases": [
+      "sen_309"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "searchType",
+        "type": "SearchType"
+      },
+      {
+        "name": "searchContent",
+        "type": "string"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerChangeVideo",
+    "aliases": [
+      "sen_311"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "currentVideoId",
+        "type": "string"
+      },
+      {
+        "name": "currentChannelName",
+        "type": "string"
+      },
+      {
+        "name": "currentVideoTime",
+        "type": "int"
+      },
+      {
+        "name": "gesture",
+        "type": "PlayerTypeGesture"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerReplay",
+    "aliases": [
+      "sen_313"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "currentVideoTime",
+        "type": "int"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerChangeOrientation",
+    "aliases": [
+      "sen_314"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "phoneOrientation",
+        "type": "PhoneOrientation"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerControllerState",
+    "aliases": [
+      "sen_315"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "state",
+        "type": "ControllerState"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "videoCurrentTime",
+        "type": "int"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "FacebookTimelineTracking",
+    "aliases": [
+      "sen_316"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "timelineState",
+        "type": "FacebookTimelineState"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "FacebookTimelinePosting",
+    "aliases": [
+      "sen_317"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "postingState",
+        "type": "FacebookTimelineMessageState"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "PlayerRecommendationBar",
+    "aliases": [
+      "sen_318"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "recommendationAction",
+        "type": "RecommendationWidgetAction"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "DiscoveryChannelContentDisplayed",
+    "aliases": [
+      "sen_319"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      },
+      {
+        "name": "videoIds",
+        "type": {
+          "type": "array",
+          "items": "string"
+        }
+      },
+      {
+        "name": "section",
+        "type": "Section"
+      },
+      {
+        "name": "afterScroll",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "Interstitial",
+    "aliases": [
+      "sen_555"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "iid",
+        "type": "InterstitialId"
+      },
+      {
+        "name": "isClicked",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "InterstitialUpdate",
+    "aliases": [
+      "sen_556"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "successful",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "ShareApp",
+    "aliases": [
+      "sen_557"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "successful",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "DeleteVideoCancelled",
+    "aliases": [
+      "sen_558"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "MusicAlbumDiscovered",
+    "aliases": [
+      "sen_601"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "artist",
+        "type": "string"
+      },
+      {
+        "name": "composer",
+        "type": "string"
+      },
+      {
+        "name": "album",
+        "type": "string"
+      },
+      {
+        "name": "year",
+        "type": "int"
+      },
+      {
+        "name": "numberOfSongs",
+        "type": "int"
+      },
+      {
+        "name": "musicService",
+        "type": "string"
+      },
+      {
+        "name": "tsAdded",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VideoDiscovered",
+    "aliases": [
+      "sen_602"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "artist",
+        "type": "string"
+      },
+      {
+        "name": "category",
+        "type": "string"
+      },
+      {
+        "name": "title",
+        "type": "string"
+      },
+      {
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "name": "album",
+        "type": "string"
+      },
+      {
+        "name": "tsTaken",
+        "type": "long"
+      },
+      {
+        "name": "tsAdded",
+        "type": "long"
+      },
+      {
+        "name": "videoService",
+        "type": "string"
+      },
+      {
+        "name": "tags",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "ChangeStorage",
+    "aliases": [
+      "sen_603"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "fromStorage",
+        "type": "StorageType"
+      },
+      {
+        "name": "toStorage",
+        "type": "StorageType"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "ScoringRun",
+    "aliases": [
+      "sen_1002"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "algoName",
+        "type": "string"
+      },
+      {
+        "name": "timeSpent",
+        "type": "int"
+      },
+      {
+        "name": "runningState",
+        "type": "AlgorithRunningState"
+      },
+      {
+        "name": "success",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderShowMore",
+    "aliases": [
+      "sen_1100"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "IntentFromIncomingEmail",
+    "aliases": [
+      "sen_1101"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "parameter",
+        "type": "string"
+      },
+      {
+        "name": "isPrefetched",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "BoostBar",
+    "aliases": [
+      "sen_1102"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "currentAllocation",
+        "type": "int"
+      },
+      {
+        "name": "newAllocation",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderClearSearch",
+    "aliases": [
+      "sen_1103"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderAccessAction",
+    "aliases": [
+      "sen_1104"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "action",
+        "type": "SliderAccessAction"
+      },
+      {
+        "name": "isOpening",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderChannelSelected",
+    "aliases": [
+      "sen_1106"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderFeedbackClick",
+    "aliases": [
+      "sen_1108"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderAdvancedSettingsClicked",
+    "aliases": [
+      "sen_1109"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderHelpClick",
+    "aliases": [
+      "sen_1110"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SpaceStorage",
+    "aliases": [
+      "sen_1200"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "spaceTotal",
+        "type": "int"
+      },
+      {
+        "name": "spaceAvailable",
+        "type": "int"
+      },
+      {
+        "name": "spaceAppUses",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NotificationSelected",
+    "aliases": [
+      "sen_1201"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "CellSignalStrengthVideoPlay",
+    "aliases": [
+      "sen_1202"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "streamed",
+        "type": "boolean"
+      },
+      {
+        "name": "gsm",
+        "type": "boolean"
+      },
+      {
+        "name": "strength",
+        "type": "int"
+      },
+      {
+        "name": "errorrate",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "SliderAddSocialNetwork",
+    "aliases": [
+      "sen_1203"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "channelName",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NotificationShown",
+    "aliases": [
+      "sen_1204"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "notificationType",
+        "type": "NotificationType"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      },
+      {
+        "name": "userAllow",
+        "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NotificationSelected",
+    "aliases": [
+      "sen_1205"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "notificationType",
+        "type": "NotificationType"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NotificationRemovedByUser",
+    "aliases": [
+      "sen_1206"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "notificationType",
+        "type": "NotificationType"
+      },
+      {
+        "name": "videoId",
+        "type": "string"
+      }
+    ]
+  }
+]
