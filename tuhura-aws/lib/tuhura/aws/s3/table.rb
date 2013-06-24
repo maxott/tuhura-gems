@@ -50,7 +50,7 @@ module Tuhura::AWS::S3
       end
 
       events.each do |r|
-        row = r[0].merge(r[1])
+        row = r[0] # r[0].merge(r[1])
         if @unknown_schema
           # puts row.map {|k,v| k}.inspect
           # exit

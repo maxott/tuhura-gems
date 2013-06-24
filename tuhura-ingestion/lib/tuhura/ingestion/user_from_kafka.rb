@@ -13,23 +13,95 @@ module Tuhura::Ingestion
   class UserFromKafka < AbstractKafkaBridge2
     #include Tuhura::Common::Sensation
 
+    USER_SCHEMA = [
+      ["user_id", :long],
+      # ["ab_100", :string],
+      # ["ab_103", :string],
+      # ["active_time", :string],
+      # ["active_time_ago", :long],
+      # ["active_time_epoch", :string],
+      ["age", :string],
+      # ["aggregation_sources", {"type"=>"array", "items"=>"string"}],
+      # ["autodata_time", :string],
+      # ["autodata_time_ago", :long],
+      # ["autodata_time_epoch", :string],
+
+      #["client_ip_cityhour", Hash],
+      # ["client_ip", {
+         # "type" => "record",
+         # "fields" => [
+           # {"name" => "country", "type" => "string"},
+           # {"name" => "city", "type" => "string"},
+           # {"name" => "lat", "type" => "long"},
+           # {"name" => "lon", "type" => "long"}
+         # ]
+      # }],
+      ["client_ip_country", :string],
+      ["client_ip_city_name", :string],
+      ["client_ip_city_lat", :float],
+      ["client_ip_city_lon", :float],
+
+      ["created", :string],
+      # ["created_ago", :long],
+      ["created_epoch", :string],
+      ["email", :string],
+      ["email_sub", :string],
+      # ["inserted_timestamp", :long],
+      ["operator", :string],
+      ["referrer", :string],
+      ["sim_operator", :string],
+      ["user_key", :string],
+      # ["ms_user_key", :string],
+      ["user_pic", :string],
+      # ["user_status_code", :long],
+      # ["user_status_count", :long],
+      # ["user_status_fix", :boolean],
+      # ["user_status_msg", :string],
+      # ["user_status_since", :string],
+      # ["user_status_since_ago", :long],
+      # ["user_status_since_epoch", :string],
+      ["timezone", :float],
+      ["username", :string],
+      ["name", :string]
+    ]
+
+    AB_SCHEMA = [
+      ["user_id", :long],
+      ["value", :string],
+    ]
+
     def process(r, payload)
-      puts r.inspect
-      puts payload.inspect
-      exit
+      unless user_id = r['user_id']
+        error "Dropping record because of missing 'user_id' - #{r.inspect}"
+      end
+      recs = []
 
-      r.delete("user_key")
-      r.delete("access_token_hash")
+      recs << [ 'user', ur = {} ]
+      @user_schema_key.each do |k|
+        next unless v = r[k]
+        ur[k] = v
+      end
+      # Unfold client_ip_cityhour
+      if ch = r['client_ip_cityhour']
+        ch.each do |k, v|
+          if k != '?' && v.is_a?(Hash)
+            # key is city name, hash should be
+            ur["client_ip_city_name"] = k
+            if latlng = v['latlng']
+              lat, lon = latlng.split(',')
+              ur["client_ip_city_lat"] = lat.to_f
+              ur["client_ip_city_lon"] = lon.to_f
+            end
+          end
+        end
+      end
 
-      user_id = r['user_id']
-      timestamp = r["timestamp"] / 1000
-      ts_day = (timestamp / 86400).to_i
-      ts_week = (ts_day / 7).to_i
-      ts_month = (ts_day / 24).to_i
+      r.each do |k, v|
+        next unless k.start_with? 'ab_'
+        recs << [ k, {'user_id' => user_id, 'value' => v.to_json} ]
+      end
 
-      evt_type = r.delete("event_type")
-      range = "#{user_id}-#{r["timestamp"]}-#{@r.rand(10**3)}"
-      [["sen_#{evt_type}_w#{ts_week}", {'day' => ts_day, 'range' => range}, r]]
+      recs
     end
 
     # def get_table_for_group(group_name)
@@ -37,34 +109,15 @@ module Tuhura::Ingestion
     # end
 
     def get_schema_for_table(table_name)
-      schema_name = table_name.split('_')[0 ... -1].join('_')
-      unless fields = @avro[schema_name]
-        warn "Unknown sensation ID '#{table_name}'"
-        return nil
+      case table_name
+      when 'user'
+        return {name: 'user', primary: 'user_id', cols: USER_SCHEMA}
+      when /^ab_/
+        return {name: table_name, primary: 'user_id', cols: AB_SCHEMA}
+      else
+        warn "Unknown table '#{table_name}'"
+        return {name: table_name}
       end
-      schema = [
-        ['day', :integer], ['range', :string],
-
-        ["sensation_id", :long],
-
-        ["client_ip", :string],
-
-        ["version", :string],
-        #["timestamp", :long],
-        ["device", :string, '???'],
-        ["tz", :int],
-
-        ["session_time", :long],
-        ["session_start", :long],
-        ["ingestion_since_ts", :long]
-      ]
-
-      #puts "FIELDS: #{fields}"
-      fields.each do |f|
-        type = f['type'].is_a?(Hash) ? f['type'] : f['type'].to_sym
-        schema << [f['name'].underscore, type]
-      end
-      schema
     end
 
     def get_table_for_group(group_name)
@@ -77,28 +130,6 @@ module Tuhura::Ingestion
           end
 
           res = nil
-          # case group_name
-          # when /^sen_1_/, /^sen_9_/
-            # unless (video_ids = r['video_ids']).is_a?(Array)
-              # r['video_ids'] = [video_ids]
-              # res = r
-            # end
-          # when /^sen_29_/
-            # index = ["connected", "connecting", "disconnected", "disconnecting", "suspended"].index(r['state'].downcase)
-            # unless index.nil?
-              # r['state'] = index
-              # res = r
-            # end
-#
-          # when /^sen_24_/
-            # index = ["gps", "network"].index(r['provider'].downcase)
-            # unless index.nil?
-              # r['provider'] = index
-              # res = r
-            # end
-#
-          # end
-          #puts "--- #{group_name} -- #{res}"
           res
         end
       end
@@ -108,19 +139,7 @@ module Tuhura::Ingestion
 
     def initialize(opts)
       super
-
-      # unless af = opts.delete(:avro_file)
-        # raise "Missing AVRO mapping file"
-      # end
-      # @avro = {}
-      # avro = JSON.load(File.open(af))
-      # avro.each do |r|
-        # name = r['name']
-        # _add_avro_declaration(r['name'], r)
-        # (r['aliases'] || []).each {|a| _add_avro_declaration(a, r)}
-      # end
-
-      #sensation_init
+      @user_schema_key = USER_SCHEMA.map {|k, t| k}
       @table_regex = db_test_mode? ? /^user+_test$/ : /^user+$/
       @r = Random.new
     end
