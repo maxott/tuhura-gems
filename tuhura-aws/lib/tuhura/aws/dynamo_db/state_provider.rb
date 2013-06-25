@@ -20,16 +20,9 @@ module Tuhura::AWS::DynamoDB
     def put(path, value, create_if_not_exist)
       path = path.gsub '//', '/'
       value_s = value.to_json
-      puts "PUT #{path}: #{value_s}\n"
-
-      @table.put([[{key: path}, {value: value_s}]])
+      info "PUT #{path}: #{value_s}\n"
+      @table.put([{key: path, value: value_s}])
       value
-      # unless @zk_validated_paths.include? path
-        # # validate that it exists
-        # unless zk_path_exists?(path, create_if_not_exist)
-          # raise NonExistingPathException.new(path)
-        # end
-      # end
     end
 
     def get(path, def_value = nil)
@@ -85,7 +78,8 @@ module Tuhura::AWS::DynamoDB
 
     def initialize(consumer, opts = {})
       logger_init(nil, top: false)
-      @table = Tuhura::AWS::DynamoDB::create(opts).get_table('__tuhura_state__')
+      schema = {primary: 'key', cols: [['key', :string], ['value', :string]]}
+      @table = Tuhura::AWS::DynamoDB::create(opts).get_table('__tuhura_state__', true, )
     end
 
     # Use this methods for any operation on @table. It will retry

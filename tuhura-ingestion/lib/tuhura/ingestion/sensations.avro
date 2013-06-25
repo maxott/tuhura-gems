@@ -1,5 +1,5 @@
 //
-// DO NOT EDIT! Automatically generated on 2013-06-21 20:39:20 +1000
+// DO NOT EDIT! Automatically generated on 2013-06-25 15:04:55 +1000
 // from files found in /Users/max/src/SMCD/android/Incoming/src/com/incoming/au/sensation.
 //
 [
@@ -954,6 +954,208 @@
       {
         "name": "rssi",
         "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VideoViewing",
+    "aliases": [
+      "sen_39"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
+        "type": "string"
+      },
+      {
+        "name": "playback",
+        "type": "int"
+      },
+      {
+        "name": "ts_viewing_start",
+        "type": "int"
+      },
+      {
+        "name": "ts_viewing_cued",
+        "type": "int"
+      },
+      {
+        "name": "ts_viewing_stop",
+        "type": "int"
+      },
+      {
+        "name": "duration_watched",
+        "type": "int"
+      },
+      {
+        "name": "data_watched",
+        "type": "float"
+      },
+      {
+        "name": "connection_id",
+        "type": "string"
+      },
+      {
+        "name": "score",
+        "type": "double"
+      },
+      {
+        "name": "score_bolognese",
+        "type": "double"
+      },
+      {
+        "name": "cellular_connected",
+        "type": "int"
+      },
+      {
+        "name": "wifi_connected",
+        "type": "int"
+      },
+      {
+        "name": "duration_video",
+        "type": "int"
+      },
+      {
+        "name": "network_id_watched",
+        "type": "string"
+      },
+      {
+        "name": "network_id_downloaded",
+        "type": "string"
+      },
+      {
+        "name": "google_serv_on",
+        "type": "int"
+      },
+      {
+        "name": "act_rec_type",
+        "type": "string"
+      },
+      {
+        "name": "act_rec_conf",
+        "type": "int"
+      },
+      {
+        "name": "lat",
+        "type": "int"
+      },
+      {
+        "name": "lon",
+        "type": "int"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "VideoDownload",
+    "aliases": [
+      "sen_40"
+    ],
+    "fields": [
+      {
+        "name": "userId",
+        "type": "int"
+      },
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
+        "type": "string"
+      },
+      {
+        "name": "connection_type",
+        "type": "int"
+      },
+      {
+        "name": "connection_id",
+        "type": "string"
+      },
+      {
+        "name": "ts_download_start",
+        "type": "int"
+      },
+      {
+        "name": "ts_download_complete",
+        "type": "int"
+      },
+      {
+        "name": "data",
+        "type": "float"
+      },
+      {
+        "name": "success",
+        "type": "int"
+      },
+      {
+        "name": "space_available",
+        "type": "int"
+      },
+      {
+        "name": "space_total",
+        "type": "int"
+      },
+      {
+        "name": "score",
+        "type": "float"
+      },
+      {
+        "name": "score_bolognese",
+        "type": "float"
+      },
+      {
+        "name": "video_duration",
+        "type": "int"
+      },
+      {
+        "name": "resolution",
+        "type": "string"
+      },
+      {
+        "name": "res_w",
+        "type": "string"
+      },
+      {
+        "name": "res_h",
+        "type": "string"
+      },
+      {
+        "name": "file_duration",
+        "type": "int"
+      },
+      {
+        "name": "file_bitrate",
+        "type": "string"
+      },
+      {
+        "name": "network_id",
+        "type": "string"
+      },
+      {
+        "name": "network_policy_id",
+        "type": "string"
+      },
+      {
+        "name": "subscriber_id",
+        "type": "string"
+      },
+      {
+        "name": "subnetwork_id",
+        "type": "string"
+      },
+      {
+        "name": "cell_id",
+        "type": "string"
+      },
+      {
+        "name": "node_id",
+        "type": "string"
       }
     ]
   },

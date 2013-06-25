@@ -5,9 +5,36 @@ module Tuhura::AWS::S3
   class Table
     include Tuhura::Common::Logger
 
-    def self.get(table_name, create_if_missing, s3_connector, &get_schema_proc)
-      schema = get_schema_proc ? get_schema_proc.call(table_name) : [[:key, :string]]
+    # Interval in seconds to call sweep
+    #
+    SWEEP_INTERVAL = 60
+
+    # Close file if nothing was written during that many sweep intervals.
+    #
+    EPOCHS_BEFORE_CLOSE = 2
+
+    @@tables = []
+
+    Thread.new do
+      loop do
+        @@tables.each do |t|
+          begin
+            t.sweep
+          rescue Exception => ex
+            puts "Sweep failed: #{ex}"
+          end
+        end
+        sleep SWEEP_INTERVAL
+      end
+    end
+
+    def self.get(table_name, create_if_missing, schema, s3_connector, &get_schema_proc)
+      schema ||= get_schema_proc ? get_schema_proc.call(table_name) : {name: table_name}
       self.new(table_name, schema, create_if_missing, s3_connector)
+    end
+
+    def self.close_all()
+      @@tables.each {|t| t.close}
     end
 
     # Constructor
@@ -20,9 +47,6 @@ module Tuhura::AWS::S3
       @initialized = false
       @no_insert_mode = @s3_connector.no_insert_mode?
 
-      file_name = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}.avr")
-      #puts "FILE_NAME: #{file_name}"
-      @file = File.open(file_name, 'wb')
       @unknown_schema = false
       unless schema[:cols]
         # unknown schema
@@ -30,7 +54,13 @@ module Tuhura::AWS::S3
         schema[:cols] = [['msg', :string]]
       end
       @schema = schema
-      @avro_writer = AvroWriter.new(table_name, schema, @file)
+
+      @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), @table_name)
+      @file_opened = 0
+      @avro_writer_unused = 0
+      @avro_writer = nil
+      @mutex = Mutex.new
+      @@tables << self
     end
 
     def before_dropping(&block)
@@ -49,37 +79,72 @@ module Tuhura::AWS::S3
         return i
       end
 
-      events.each do |r|
-        row = r[0] # r[0].merge(r[1])
-        if @unknown_schema
-          # puts row.map {|k,v| k}.inspect
-          # exit
-          row = {'msg' => row.to_json }
+      start = Time.now
+      @mutex.synchronize do
+        writer = _get_writer
+        events.each do |row|
+          if @unknown_schema
+            row = {'msg' => row.to_json }
+          end
+          _put_row(row, writer)
         end
-        _put_row(row)
       end
-      return events.length
+      i = events.length
+      debug "Wrote #{i} records at #{(1.0 * i / (Time.now - start)).round(1)} rec/sec to #{@file_name}"
+      i
     end
 
-    def _put_row(row, tries = 1)
+    def _put_row(row, writer, tries = 1)
       begin
-
-        @avro_writer << row
+        writer << row
       rescue Avro::IO::AvroTypeError => ex
         if tries < 10 && @before_dropping
           if fixed_row = @before_dropping.call(row, @schema, tries)
-            return _put_row(fixed_row, tries + 1)
+            #puts "----- RETRY AGAIN ----"
+            return _put_row(fixed_row, writer, tries + 1)
           end
         end
-        @avro_writer.validate_fields(row)
+        writer.validate_fields(row)
         keys = row.map {|k, v| k}
         #puts "#{@table_name}-#{ex}-\n#{ex.backtrace.join("\n")}"
-        puts "   DROPPING event for '#{@table_name} - '#{keys - @avro_writer.keys}' | '#{@avro_writer.keys - keys}' - #{keys}"
+        warn "DROPPING event for '#{@table_name} - '#{keys - writer.keys}' (#{ex})"
+        #puts ex.backtrace.join("\n")
       end
+    end
+
+    def _get_writer
+      @avro_writer_unused = 0
+      unless @avro_writer
+        #puts "FILE_NAME: #{file_name}"
+        @file_name = "#{@file_prefix}.#{@file_opened}.avr"
+        info "Opening #{@file_name}"
+        @file = File.open(@file_name, 'wb')
+        @file_opened += 1
+        @avro_writer = AvroWriter.new(@table_name, @schema, @file)
+      end
+      @avro_writer
     end
 
     def get(key)
       raise "Not supported"
+    end
+
+    def sweep
+      @mutex.synchronize do
+        return unless @file
+        @avro_writer.flush
+        if (@avro_writer_unused += 1) > EPOCHS_BEFORE_CLOSE
+        end
+      end
+    end
+
+    def close
+      @mutex.synchronize do
+        info "Closing #{@file_name} due to inactivity"
+        @avro_writer.close # also closes @file
+        @avro_writer = nil
+        @file = nil
+      end
     end
   end
 end

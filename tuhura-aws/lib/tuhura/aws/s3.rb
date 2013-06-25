@@ -21,8 +21,12 @@ module Tuhura::AWS::S3
   class Connector
     include Tuhura::Common::Logger
 
-    def get_table(table_name, create_if_missing = false, &get_schema)
-      Table.get(table_name, create_if_missing, self, &get_schema)
+    def get_table(table_name, create_if_missing = false, schema = nil, &get_schema)
+      Table.get(table_name, create_if_missing, schema, self, &get_schema)
+    end
+
+    def self.close_all_table()
+      Table.close_all
     end
 
     attr_reader :opts

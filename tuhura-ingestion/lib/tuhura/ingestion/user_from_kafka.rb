@@ -96,6 +96,7 @@ module Tuhura::Ingestion
         end
       end
 
+      #Create differnt table entries for each AB test related record
       r.each do |k, v|
         next unless k.start_with? 'ab_'
         recs << [ k, {'user_id' => user_id, 'value' => v.to_json} ]
@@ -103,10 +104,6 @@ module Tuhura::Ingestion
 
       recs
     end
-
-    # def get_table_for_group(group_name)
-      # get_table("s#{group_name}")
-    # end
 
     def get_schema_for_table(table_name)
       case table_name
@@ -135,7 +132,6 @@ module Tuhura::Ingestion
       end
       t
     end
-
 
     def initialize(opts)
       super

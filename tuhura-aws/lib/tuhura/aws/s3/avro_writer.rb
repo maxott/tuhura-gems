@@ -88,11 +88,18 @@ module Tuhura::AWS::S3
 
     def validate_fields(record)
       datum = @defaults.merge(record)
+      res = Avro::Schema.validate(@avro_schema, datum)
+      #puts "----- #{res} -- #{record['data'].inspect}--- #{datum.diff($datum)}"
       @avro_schema.fields.each do |f|
         v = datum[f.name]
         unless Avro::Schema.validate(f.type, v)
           warn "Field '#{f.name}' should be of type #{f.type} but is '#{v}'::#{v.class} - #{datum}"
         end
+      end
+      r = record.dup
+      record.each {|k, v| r.delete(k)}
+      unless r.empty?
+        warn "Unknown fields '#{r.keys}' in record, but not in schema"
       end
     end
 
@@ -105,5 +112,25 @@ module Tuhura::AWS::S3
       end
       @dw << @defaults.merge(record)
     end
+
+    def flush
+      @dw.flush
+    end
+
+    def close
+      @dw.close
+    end
+
   end
 end
+
+# class Hash
+  # def diff(other)
+    # self.keys.inject({}) do |memo, key|
+      # unless self[key] == other[key]
+        # memo[key] = [self[key], other[key]]
+      # end
+      # memo
+    # end
+  # end
+# end
