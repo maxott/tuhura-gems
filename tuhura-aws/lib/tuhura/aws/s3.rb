@@ -25,7 +25,7 @@ module Tuhura::AWS::S3
       Table.get(table_name, create_if_missing, schema, self, &get_schema)
     end
 
-    def self.close_all_table()
+    def close()
       Table.close_all
     end
 

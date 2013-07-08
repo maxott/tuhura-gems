@@ -64,20 +64,6 @@ module Tuhura::Common
 
     end
 
-    # class StateHelper
-      # include Tuhura::Common::Logger
-      # include Tuhura::Common::OML
-      # include Tuhura::Common::Database
-#
-      # def initialize(opts)
-        # puts opts.inspect
-        # logger_init()
-        # oml_init()
-        # db_init(opts)
-      # end
-#
-    # end
-
   end
 end
 

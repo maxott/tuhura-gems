@@ -90,5 +90,9 @@ module Tuhura::Common
       @db_table_regexp = table_regexp
     end
 
+    def db_close
+      @db.close
+    end
+
   end
 end

@@ -77,10 +77,11 @@ module Tuhura::AWS::S3
       schema_desc = {
         "type" => "record",
         "name" => schema[:name] || name,
+        'version' => (schema[:version] || 0),
         "aliases" => aliases,
         "fields" => fields
       }
-      #puts "SCHEMA(#{name}): #{schema_desc}"
+      #puts ">>> SCHEMA(#{name}): #{schema_desc}"
       @avro_schema = Avro::Schema.parse(schema_desc.to_json)
       @writer = Avro::IO::DatumWriter.new(@avro_schema)
       @dw = Avro::DataFile::Writer.new(out_stream, @writer, @avro_schema)

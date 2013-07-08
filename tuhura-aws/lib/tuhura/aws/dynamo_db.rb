@@ -24,9 +24,10 @@ module Tuhura::AWS::DynamoDB
       Table.get(table_name, create_if_missing, schema, self, &get_schema)
     end
 
-    def self.close_all_table()
+    def self.close_all_tables()
       Table.close_all
     end
+
 
     attr_reader :opts
 
@@ -38,7 +39,7 @@ module Tuhura::AWS::DynamoDB
     def initialize(opts)
       logger_init(nil, top: false)
       @opts = opts
-puts "DB: #{opts}"
+#puts "DB: #{opts}"
 #raise "EXIT"
       # unless  token = opts[:aws_creds]
         # raise "Missing option ':aws_creds'"
