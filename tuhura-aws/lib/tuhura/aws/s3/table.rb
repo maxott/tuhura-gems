@@ -14,14 +14,17 @@ module Tuhura::AWS::S3
     EPOCHS_BEFORE_CLOSE = 2
 
     @@tables = []
+    @@lock = Mutex.new
 
     Thread.new do
       loop do
-        @@tables.each do |t|
-          begin
-            t.sweep
-          rescue Exception => ex
-            puts "Sweep failed: #{ex}"
+        @@lock.synchronize do
+          @@tables.each do |t|
+            begin
+              t.sweep
+            rescue Exception => ex
+              puts "Sweep failed: #{ex}"
+            end
           end
         end
         sleep SWEEP_INTERVAL
@@ -34,7 +37,9 @@ module Tuhura::AWS::S3
     end
 
     def self.close_all()
-      @@tables.each {|t| t.close}
+      @@lock.synchronize do
+        @@tables.each {|t| t.close}
+      end
     end
 
     # Constructor
@@ -60,7 +65,9 @@ module Tuhura::AWS::S3
       @avro_writer_unused = 0
       @avro_writer = nil
       @mutex = Mutex.new
-      @@tables << self
+      @@lock.synchronize do
+        @@tables << self
+      end
     end
 
     def before_dropping(&block)
@@ -113,16 +120,18 @@ module Tuhura::AWS::S3
     end
 
     def _get_writer
-      @avro_writer_unused = 0
-      unless @avro_writer
-        #puts "FILE_NAME: #{file_name}"
-        @file_name = "#{@file_prefix}.#{@file_opened}.avr"
-        info "Opening #{@file_name}"
-        @file = File.open(@file_name, 'wb')
-        @file_opened += 1
-        @avro_writer = AvroWriter.new(@table_name, @schema, @file)
+      @mutex.synchronize do
+        @avro_writer_unused = 0 # reset inactivity timeout
+        unless @avro_writer
+          #puts "FILE_NAME: #{file_name}"
+          @file_name = "#{@file_prefix}.#{@file_opened}.avr"
+          info "Opening #{@file_name}"
+          @file = File.open(@file_name, 'wb')
+          @file_opened += 1
+          @avro_writer = AvroWriter.new(@table_name, @schema, @file)
+        end
+        @avro_writer
       end
-      @avro_writer
     end
 
     def get(key)
@@ -134,13 +143,14 @@ module Tuhura::AWS::S3
         return unless @file
         @avro_writer.flush
         if (@avro_writer_unused += 1) > EPOCHS_BEFORE_CLOSE
+          info "Closing #{@file_name} due to inactivity"
+          close
         end
       end
     end
 
     def close
       @mutex.synchronize do
-        info "Closing #{@file_name} due to inactivity"
         @avro_writer.close # also closes @file
         @avro_writer = nil
         @file = nil
