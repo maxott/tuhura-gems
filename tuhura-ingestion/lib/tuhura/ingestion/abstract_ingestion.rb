@@ -56,6 +56,9 @@ module Tuhura::Ingestion
         op.on(nil, '--db-noinsert', "Test mode. Do NOT insert data into database [#{Tuhura::Common::Database::DB_OPTS[:no_insert]}]" ) do
           (options[:database] ||= {})[:no_insert] = true
         end
+        op.on('-s', '--state-domain DOMAIN', "State domain for keeping ingestion state [#{KAFKA_OPTS[:state_domain]}]" ) do |domain|
+          (options[:kafka] ||= {})[:state_domain] =  domain
+        end
         op.on(nil, '--test', "Test mode. Append '-test' to all created HBASE tables [#{Tuhura::Common::Database::DB_OPTS[:test_mode]}]" ) do
           (options[:database] ||= {})[:test_mode] = true
         end

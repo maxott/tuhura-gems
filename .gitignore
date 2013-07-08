@@ -4,3 +4,4 @@ tuhura-omf_rc/example/simple-app/build/package.tgz
 tuhura-tools/log.log
 **/build
 **/log.log
+tuhura-ingestion/data
