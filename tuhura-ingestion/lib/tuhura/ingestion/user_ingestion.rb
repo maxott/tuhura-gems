@@ -1,16 +1,15 @@
 
 require 'json'
-#require 'tuhura/common/sensation'
-require 'tuhura/ingestion/abstract_kafka_bridge2'
+require 'tuhura/ingestion/abstract_ingestion'
 require 'active_support/core_ext'
 
 module Tuhura::Ingestion
-  Tuhura::Ingestion::AbstractKafkaBridge2::KAFKA_OPTS[:topic] = 'user'
-  Tuhura::Common::OML::OML_OPTS[:appName] = 'user_from_kafka'
+  Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = 'user'
+  Tuhura::Common::OML::OML_OPTS[:appName] = 'user_ingestion'
 
   # Read user information from Kafka queues
   #
-  class UserFromKafka < AbstractKafkaBridge2
+  class UserIngestion < AbstractIngestion
     #include Tuhura::Common::Sensation
 
     USER_SCHEMA = [
@@ -70,7 +69,7 @@ module Tuhura::Ingestion
       ["value", :string],
     ]
 
-    def process(r, payload)
+    def ingest_kafka_message(r, payload)
       unless user_id = r['user_id']
         error "Dropping record because of missing 'user_id' - #{r.inspect}"
       end
@@ -108,9 +107,9 @@ module Tuhura::Ingestion
     def get_schema_for_table(table_name)
       case table_name
       when 'user'
-        return {name: 'user', primary: 'user_id', cols: USER_SCHEMA}
+        return {name: 'user', primary: 'user_id', cols: USER_SCHEMA, version: 1}
       when /^ab_/
-        return {name: table_name, primary: 'user_id', cols: AB_SCHEMA}
+        return {name: table_name, primary: 'user_id', cols: AB_SCHEMA, version: 1}
       else
         warn "Unknown table '#{table_name}'"
         return {name: table_name}
@@ -138,13 +137,25 @@ module Tuhura::Ingestion
       @user_schema_key = USER_SCHEMA.map {|k, t| k}
       @table_regex = db_test_mode? ? /^user+_test$/ : /^user+$/
       @r = Random.new
+
+      # unless af = opts.delete(:avro_file)
+        # raise "Missing AVRO mapping file"
+      # end
+      # @avro = {}
+      # avro = JSON.load(File.open(af))
+      # avro.each do |r|
+        # name = r['name']
+        # _add_avro_declaration(r['name'], r)
+        # (r['aliases'] || []).each {|a| _add_avro_declaration(a, r)}
+      # end
+
     end
 
   end
 end
 
 if $0 == __FILE__
-  options = {task: :inject, max_msgs: -1}
-  Tuhura::Ingestion::UserFromKafka.create(options).work(options)
+  options = {task: :inject, max_msgs: -1, kafka: {state_domain: 'kafka/test'}}
+  Tuhura::Ingestion::UserIngestion.create(options).work(options)
 end
 

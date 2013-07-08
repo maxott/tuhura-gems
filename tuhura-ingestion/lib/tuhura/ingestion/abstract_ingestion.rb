@@ -14,11 +14,6 @@ module Tuhura::Ingestion
 
   class AbstractIngestion
 
-    # KAFKA_OPTS = {
-      # #offset: -1,
-      # host: 'cloud1.tempo.nicta.org.au'
-    # }
-
     include Tuhura::Common::Logger
     include Tuhura::Common::OML
     include Tuhura::Common::Database
@@ -135,37 +130,7 @@ module Tuhura::Ingestion
       oml_init(opts[:oml])
       db_init(opts[:database])
       state_init(opts[:state])
-
-      # @kafka_opts = KAFKA_OPTS.merge(opts[:kafka] || {})
-      # @topic = @kafka_opts[:topic]
-      # _init_state(@topic, opts[:state])
-#
-      # unless offset = @kafka_opts[:offset]
-        # if offset_s = state_get(@offset_path)
-          # offset = offset_s.to_i
-        # else
-          # offset = 0
-        # end
-        # @kafka_opts[:offset] = offset
-      # end
-      # info "Kafka options: #{@kafka_opts}"
-      # @kafka_consumer = Kafka::Consumer.new(@kafka_opts)
-      # @logger.info "Reading Kafka queue '#{@topic}' with offset '#{@kafka_opts[:offset]}'"
     end
-
-    # def _init_state(topic, opts)
-      # state_init(opts)
-      # unless db_test_mode?
-        # path_prefix = "/incmg/kafka_bridge/#{topic}"
-      # else
-        # path_prefix = "/incmg/kafka_bridge/test/#{topic}"
-      # end
-      # @offset_path = "#{path_prefix}/offset"
-    # end
-
-    # def _persist_offset(offset)
-      # state_put(@offset_path, offset)
-    # end
 
 
   end # class

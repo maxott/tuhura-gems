@@ -7,7 +7,8 @@ module Tuhura::Ingestion
 
     KAFKA_OPTS = {
       #offset: -1,
-      host: 'cloud1.tempo.nicta.org.au'
+      host: 'cloud1.tempo.nicta.org.au',
+      state_domain: 'kafka_bridge'  # part of the state prefix - change if private namespace is desired
     }
 
     def kafka_inject(max_count = -1)
@@ -57,6 +58,7 @@ module Tuhura::Ingestion
       end
       bm_r.stop
       bm_w.stop
+      db_close()
       info ">>>> SUMMARY: Wrote #{total_count} record(s) - offset: #{@kafka_consumer.offset}"
       indv_counts.each do |group_id, cnt|
         info ">>>>      #{group_id}:\t#{cnt}"
@@ -66,14 +68,14 @@ module Tuhura::Ingestion
     def kafka_init(opts = {})
       @kafka_opts = KAFKA_OPTS.merge(opts || {})
       @kafka_topic = topic = @kafka_opts[:topic]
-
+      state_domain = @kafka_opts[:state_domain]
       unless db_test_mode?
-        path_prefix = "/incmg/kafka_bridge/#{topic}"
+        path_prefix = "/incmg/#{state_domain}/#{topic}"
       else
-        path_prefix = "/incmg/kafka_bridge/test/#{topic}"
+        path_prefix = "/incmg/#{state_domain}/test/#{topic}"
       end
       @kafka_state_offset = "#{path_prefix}/offset"
-
+puts ">> STATE OFFSET #{@kafka_state_offset} - #{@kafka_opts}"
       unless offset = @kafka_opts[:offset]
         if offset_s = state_get(@kafka_state_offset)
           offset = offset_s.to_i
