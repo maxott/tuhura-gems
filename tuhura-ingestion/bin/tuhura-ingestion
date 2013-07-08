@@ -7,14 +7,22 @@ require 'tuhura/tools/startup_helper'
 include Tuhura::Tools
 
 StartupHelper.def_task :sensation, {
-  :descr => 'Ingest sensation data from kafka into hbase', 
+  :descr => 'Ingest sensation data from kafka into hbase',
   :top_dir => File.join(File.dirname(__FILE__), '..'),
   :path => 'lib/tuhura/ingestion/sensation_from_kafka.rb',
-  :ruby => 'jruby'
+  :ruby => 'ruby'
 }
 
+StartupHelper.def_task :avro, {
+  :descr => 'Various tools to manipulate AVRO encoded files',
+  :top_dir => File.join(File.dirname(__FILE__), '..'),
+  :path => 'lib/tuhura/ingestion/avro_tools.rb',
+  :ruby => 'ruby'
+}
+
+
 # StartupHelper.def_task :ingestion, {
-  # :descr => 'Ingest data from kafka', 
+  # :descr => 'Ingest data from kafka',
   # :top_dir => File.join(File.dirname(__FILE__), '../../tuhura-ingestion'),
   # :path => 'bin/tuhura-ingestion',
   # :ruby => 'ruby-1.9.3',
