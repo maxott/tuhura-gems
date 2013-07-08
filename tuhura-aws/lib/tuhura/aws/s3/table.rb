@@ -1,5 +1,6 @@
 require 'tuhura/common/logger'
 require 'tuhura/aws/s3/avro_writer'
+require 'monitor'
 
 module Tuhura::AWS::S3
   class Table
