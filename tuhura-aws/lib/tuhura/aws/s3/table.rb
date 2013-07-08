@@ -65,7 +65,7 @@ module Tuhura::AWS::S3
       @file_opened = 0
       @avro_writer_unused = 0
       @avro_writer = nil
-      @mutex = Mutex.new
+      @monitor = Monitor.new
       @@lock.synchronize do
         @@tables << self
       end
@@ -88,7 +88,7 @@ module Tuhura::AWS::S3
       end
 
       start = Time.now
-      @mutex.synchronize do
+      @monitor.synchronize do
         writer = _get_writer
         events.each do |row|
           if @unknown_schema
@@ -121,7 +121,7 @@ module Tuhura::AWS::S3
     end
 
     def _get_writer
-      @mutex.synchronize do
+      @monitor.synchronize do
         @avro_writer_unused = 0 # reset inactivity timeout
         unless @avro_writer
           #puts "FILE_NAME: #{file_name}"
@@ -140,7 +140,7 @@ module Tuhura::AWS::S3
     end
 
     def sweep
-      @mutex.synchronize do
+      @monitor.synchronize do
         return unless @file
         @avro_writer.flush
         if (@avro_writer_unused += 1) > EPOCHS_BEFORE_CLOSE
@@ -151,7 +151,7 @@ module Tuhura::AWS::S3
     end
 
     def close
-      @mutex.synchronize do
+      @monitor.synchronize do
         @avro_writer.close # also closes @file
         @avro_writer = nil
         @file = nil
