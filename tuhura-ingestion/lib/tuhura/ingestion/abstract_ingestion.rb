@@ -53,6 +53,9 @@ module Tuhura::Ingestion
         op.on('', '--db-provider PROVIDER', "Provider for database capability [#{Tuhura::Common::Database::DB_OPTS[:provider]}]" ) do |provider|
           (options[:database] ||= {})[:provider] = provider
         end
+        op.on('', '--db-format FORMAT', "Format used for S3 provider [avro]" ) do |format|
+          (options[:database] ||= {})[:format] = format
+        end
         op.on(nil, '--db-noinsert', "Test mode. Do NOT insert data into database [#{Tuhura::Common::Database::DB_OPTS[:no_insert]}]" ) do
           (options[:database] ||= {})[:no_insert] = true
         end

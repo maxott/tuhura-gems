@@ -1,5 +1,6 @@
 require 'tuhura/common/logger'
 require 'tuhura/aws/s3/avro_writer'
+require 'tuhura/aws/s3/csv_writer'
 require 'monitor'
 
 module Tuhura::AWS::S3
@@ -32,9 +33,9 @@ module Tuhura::AWS::S3
       end
     end
 
-    def self.get(table_name, create_if_missing, schema, s3_connector, &get_schema_proc)
+    def self.get(table_name, create_if_missing, schema, s3_connector, opts, &get_schema_proc)
       schema ||= get_schema_proc ? get_schema_proc.call(table_name) : {name: table_name}
-      self.new(table_name, schema, create_if_missing, s3_connector)
+      self.new(table_name, schema, create_if_missing, s3_connector, opts)
     end
 
     def self.close_all()
@@ -45,7 +46,7 @@ module Tuhura::AWS::S3
 
     # Constructor
     #
-    def initialize(table_name, schema, create_if_missing, s3_connector)
+    def initialize(table_name, schema, create_if_missing, s3_connector, opts)
       logger_init(nil, top: false)
       @table_name = table_name
       @head_schema = schema
@@ -60,11 +61,28 @@ module Tuhura::AWS::S3
         schema[:cols] = [['msg', :string]]
       end
       @schema = schema
+      version = schema[:version] || 0
 
-      @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), @table_name)
+      case (opts[:format] || 'avro').to_s
+      when 'avro'
+        @writer_class = AvroWriter
+      when 'csv'
+        @writer_class = CSVWriter
+      else
+        raise "Unknown Table Writer '#{opts[:writer]}' - supporting 'avro' and 'csv'"
+      end
+      @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}_v#{version}")
+      # find file seq no from '#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
       @file_opened = 0
-      @avro_writer_unused = 0
-      @avro_writer = nil
+      l = @file_prefix.length + 1
+      Dir.glob("#{@file_prefix}*.#{@writer_class.file_ext}") do |f|
+        if (seq = f[l .. -1].split('.')[0].to_i) >= @file_opened
+          @file_opened = seq + 1
+        end
+      end
+      puts "USING #{@file_opened}"
+      @writer_unused = 0
+      @writer = nil
       @monitor = Monitor.new
       @@lock.synchronize do
         @@tables << self
@@ -122,16 +140,16 @@ module Tuhura::AWS::S3
 
     def _get_writer
       @monitor.synchronize do
-        @avro_writer_unused = 0 # reset inactivity timeout
-        unless @avro_writer
+        @writer_unused = 0 # reset inactivity timeout
+        unless @writer
           #puts "FILE_NAME: #{file_name}"
-          @file_name = "#{@file_prefix}.#{@file_opened}.avr"
+          @file_name = "#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
           info "Opening #{@file_name}"
           @file = File.open(@file_name, 'wb')
           @file_opened += 1
-          @avro_writer = AvroWriter.new(@table_name, @schema, @file)
+          @writer = @writer_class.new(@table_name, @schema, @file)
         end
-        @avro_writer
+        @writer
       end
     end
 
@@ -142,8 +160,8 @@ module Tuhura::AWS::S3
     def sweep
       @monitor.synchronize do
         return unless @file
-        @avro_writer.flush
-        if (@avro_writer_unused += 1) > EPOCHS_BEFORE_CLOSE
+        @writer.flush
+        if (@writer_unused += 1) > EPOCHS_BEFORE_CLOSE
           info "Closing #{@file_name} due to inactivity"
           close
         end
@@ -152,8 +170,8 @@ module Tuhura::AWS::S3
 
     def close
       @monitor.synchronize do
-        @avro_writer.close # also closes @file
-        @avro_writer = nil
+        @writer.close # also closes @file
+        @writer = nil
         @file = nil
       end
     end

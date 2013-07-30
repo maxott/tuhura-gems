@@ -53,7 +53,7 @@ module Tuhura::Ingestion
         type = f['type'].is_a?(Hash) ? f['type'] : f['type'].to_sym
         schema << [f['name'].underscore, type]
       end
-      {name: schema_name, primary: 'day', range: 'range', cols: schema}
+      {name: schema_name, primary: 'day', range: 'range', version: 1, cols: schema}
     end
 
     def get_table_for_group(group_name)
@@ -67,7 +67,7 @@ module Tuhura::Ingestion
 
           res = r
           case group_name
-          when /^sen_1_/, /^sen_9_/
+          when /^sen_1_/, /^sen_9_/, /^sen_319_/
             unless (video_ids = r['video_ids']).is_a?(Array)
               r['video_ids'] = [video_ids]
             end

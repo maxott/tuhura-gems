@@ -978,15 +978,15 @@
       },
       {
         "name": "ts_viewing_start",
-        "type": "int"
+        "type": "long"
       },
       {
         "name": "ts_viewing_cued",
-        "type": "int"
+        "type": "long"
       },
       {
         "name": "ts_viewing_stop",
-        "type": "int"
+        "type": "long"
       },
       {
         "name": "duration_watched",

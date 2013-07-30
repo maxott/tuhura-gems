@@ -6,7 +6,8 @@ require 'tuhura/common/logger'
 module Tuhura::AWS
   module S3
     DEFAULTS = {
-      data_dir: '/tmp'
+      data_dir: '/tmp',
+      writer: 'avro'
     }
 
     def self.create(opts)
@@ -22,7 +23,7 @@ module Tuhura::AWS::S3
     include Tuhura::Common::Logger
 
     def get_table(table_name, create_if_missing = false, schema = nil, &get_schema)
-      Table.get(table_name, create_if_missing, schema, self, &get_schema)
+      Table.get(table_name, create_if_missing, schema, self, @opts, &get_schema)
     end
 
     def close()
@@ -35,6 +36,7 @@ module Tuhura::AWS::S3
     #
     # @param [Hash] opts the options to establish a connection to AWS
     def initialize(opts)
+      puts ">>>> #{opts}"
       @opts = Tuhura::AWS::S3::DEFAULTS.merge(opts)
       logger_init(@opts[:logger], top: false)
     end

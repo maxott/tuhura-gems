@@ -1,15 +1,15 @@
 require 'tuhura/common/logger'
-require 'avro'
+require 'csv'
 
 module Tuhura::AWS::S3
   #
-  # Class to serialise records into an Avro chunk
+  # Class to serialize records into CSV files
   #
-  class AvroWriter
+  class CSVWriter
     include Tuhura::Common::Logger
 
     def self.file_ext
-      'avr'
+      'csv'
     end
 
     CLASS2TYPE = {
@@ -58,7 +58,9 @@ module Tuhura::AWS::S3
       @name = name
       @defaults = {}
       @boolean_fields = []
-      fields = schema[:cols].map do |n, t, default|
+      @keys = []
+      header = []
+      schema[:cols].each do |n, t, default|
         #t = t.to_s
         n = n.to_s
         unless type = t.is_a?(Class) ? CLASS2TYPE[t.to_s] : STRING2TYPE[t.to_s]
@@ -75,37 +77,15 @@ module Tuhura::AWS::S3
         end
         @boolean_fields << n if type == 'boolean'
         @defaults[n] = default ? default : TYPE2DEFAULT[type]
-        {'name' => n, 'type' => type}
+        keys << n
+        header << "#{n}:#{type}"
       end
-      @keys = fields.map {|f| f['name']}
-      schema_desc = {
-        "type" => "record",
-        "name" => schema[:name] || name,
-        'version' => (schema[:version] || 0),
-        "aliases" => aliases,
-        "fields" => fields
-      }
-      #puts ">>> SCHEMA(#{name}): #{schema_desc}"
-      @avro_schema = Avro::Schema.parse(schema_desc.to_json)
-      @writer = Avro::IO::DatumWriter.new(@avro_schema)
-      @dw = Avro::DataFile::Writer.new(out_stream, @writer, @avro_schema)
+      #puts "#{header}"
+      out_stream << header.to_csv
+      @out_stream = out_stream
     end
 
     def validate_fields(record)
-      datum = @defaults.merge(record)
-      res = Avro::Schema.validate(@avro_schema, datum)
-      #puts "----- #{res} -- #{record['data'].inspect}--- #{datum.diff($datum)}"
-      @avro_schema.fields.each do |f|
-        v = datum[f.name]
-        unless Avro::Schema.validate(f.type, v)
-          warn "Field '#{f.name}' should be of type #{f.type} but is '#{v}'::#{v.class} - #{datum}"
-        end
-      end
-      r = record.dup
-      record.each {|k, v| r.delete(k)}
-      unless r.empty?
-        warn "Unknown fields '#{r.keys}' in record, but not in schema"
-      end
     end
 
     def <<(record)
@@ -115,27 +95,18 @@ module Tuhura::AWS::S3
         record[n] = true if v == 1
         record[n] = false if v == 0
       end
-      @dw << @defaults.merge(record)
+      r = @defaults.merge(record)
+      @out_stream << @keys.map {|k| r[k] }.to_csv
     end
 
     def flush
-      @dw.flush
+      @out_stream.flush
     end
 
     def close
-      @dw.close
+      @out_stream.close
     end
 
   end
 end
 
-# class Hash
-  # def diff(other)
-    # self.keys.inject({}) do |memo, key|
-      # unless self[key] == other[key]
-        # memo[key] = [self[key], other[key]]
-      # end
-      # memo
-    # end
-  # end
-# end
