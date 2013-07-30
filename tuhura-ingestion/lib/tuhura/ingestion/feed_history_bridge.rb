@@ -68,15 +68,6 @@ module Tuhura::Ingestion
     end
 
     private
-
-    # def create_key(ts_day, user_id, v , payload)
-      # puts ts_day
-      # puts user_id
-      # puts v.keys.inspect
-      # puts v['user_id']
-      # #puts payload.keys.inspect
-      # exit
-    # end
   end
 end
 
