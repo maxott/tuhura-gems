@@ -14,11 +14,13 @@ unless Dir.exist?('../../tuhura-gems')
   end
 end
 
-#gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
-#gem 'thread', :git => 'git://github.com/maxott/ruby-thread.git'
 gem 'tuhura-common', find_alternative('../tuhura-common', 'git://github.com/maxott/tuhura-gems.git')
-
-gem 'avro'
 
 # they shouldn't be here
 gem 'logging'
+gem 'avro'
+gem 'kafka-rb'
+gem 'aws-sdk'
+gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+gem 'active_support'
+gem 'i18n'
