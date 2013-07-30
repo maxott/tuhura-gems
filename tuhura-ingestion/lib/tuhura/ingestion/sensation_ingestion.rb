@@ -83,6 +83,11 @@ module Tuhura::Ingestion
               r['provider'] = index
             end
 
+          when /^sen_39_/
+            unless (video_ids = r['video_ids']).is_a?(Array)
+              r['act_rec_conf'] = r['act_rec_conf'].to_i
+            end
+
           when /^sen_40_/
             r['ts_download_complete'] = r['ts_download_complete'].to_i
             r['data'] = r['data'].to_f

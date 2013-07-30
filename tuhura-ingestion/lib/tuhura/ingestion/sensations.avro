@@ -1042,11 +1042,11 @@
       },
       {
         "name": "lat",
-        "type": "int"
+        "type": "double"
       },
       {
         "name": "lon",
-        "type": "int"
+        "type": "double"
       }
     ]
   },
