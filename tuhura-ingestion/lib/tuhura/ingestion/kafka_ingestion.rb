@@ -75,7 +75,7 @@ module Tuhura::Ingestion
         path_prefix = "/incmg/#{state_domain}/test/#{topic}"
       end
       @kafka_state_offset = "#{path_prefix}/offset"
-puts ">> STATE OFFSET #{@kafka_state_offset} - #{@kafka_opts}"
+      debug "STATE OFFSET #{@kafka_state_offset} - #{@kafka_opts}"
       unless offset = @kafka_opts[:offset]
         if offset_s = state_get(@kafka_state_offset)
           offset = offset_s.to_i
