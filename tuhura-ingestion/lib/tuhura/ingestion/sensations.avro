@@ -1,5 +1,5 @@
 //
-// DO NOT EDIT! Automatically generated on 2013-06-25 15:04:55 +1000
+// DO NOT EDIT! Automatically generated on 2013-08-08 14:57:41 +1000
 // from files found in /Users/max/src/SMCD/android/Incoming/src/com/incoming/au/sensation.
 //
 [
@@ -333,19 +333,19 @@
         "type": "long"
       },
       {
-        "name": "userId",
-        "type": "int"
+        "name": "user_id",
+        "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "positionInList",
+        "name": "position_in_list",
         "type": "int"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       },
       {
@@ -353,7 +353,7 @@
         "type": "Section"
       },
       {
-        "name": "videoIds",
+        "name": "video_ids",
         "type": {
           "type": "array",
           "items": "string"
@@ -373,11 +373,15 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "video_current_time",
         "type": "int"
       }
     ]
@@ -394,11 +398,15 @@
         "type": "long"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_current_time",
         "type": "int"
       },
       {
-        "name": "videoTimeWatched",
+        "name": "video_time_watched",
         "type": "int"
       }
     ]
@@ -415,7 +423,11 @@
         "type": "long"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_current_time",
         "type": "int"
       }
     ]
@@ -432,7 +444,11 @@
         "type": "long"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_current_time",
         "type": "int"
       }
     ]
@@ -449,15 +465,19 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "positionInList",
+        "name": "position_in_list",
         "type": "int"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       },
       {
@@ -465,7 +485,7 @@
         "type": "Section"
       },
       {
-        "name": "videoIds",
+        "name": "video_ids",
         "type": {
           "type": "array",
           "items": "string"
@@ -485,15 +505,19 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "video_current_time",
         "type": "int"
       },
       {
-        "name": "seekType",
+        "name": "seek_type",
         "type": "SeekType"
       }
     ]
@@ -510,7 +534,11 @@
         "type": "long"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_current_time",
         "type": "int"
       },
       {
@@ -531,23 +559,27 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "videoPreviousRate",
+        "name": "video_previous_rate",
         "type": "int"
       },
       {
-        "name": "videoNewRate",
+        "name": "video_new_rate",
         "type": "int"
       },
       {
-        "name": "scoreAlfredo",
+        "name": "score_alfredo",
         "type": "double"
       },
       {
-        "name": "scoreBolognese",
+        "name": "score_bolognese",
         "type": "double"
       },
       {
@@ -568,7 +600,11 @@
         "type": "long"
       },
       {
-        "name": "channelName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -585,11 +621,15 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -606,7 +646,11 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
@@ -614,11 +658,11 @@
         "type": "float"
       },
       {
-        "name": "soundChangeType",
+        "name": "sound_change_type",
         "type": "SoundChangeAction"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -635,11 +679,15 @@
         "type": "long"
       },
       {
-        "name": "linkConnected",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "link_connected",
         "type": "boolean"
       },
       {
-        "name": "linkUsable",
+        "name": "link_usable",
         "type": "boolean"
       },
       {
@@ -661,6 +709,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -689,6 +741,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "level",
         "type": "int"
       }
@@ -706,8 +762,8 @@
         "type": "long"
       },
       {
-        "name": "userId",
-        "type": "int"
+        "name": "user_id",
+        "type": "long"
       },
       {
         "name": "latitude",
@@ -751,8 +807,16 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "statement",
         "type": "boolean"
+      },
+      {
+        "name": "video_id",
+        "type": "string"
       }
     ]
   },
@@ -765,6 +829,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -785,6 +853,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "package_name",
         "type": "string"
       }
@@ -802,8 +874,8 @@
         "type": "long"
       },
       {
-        "name": "userId",
-        "type": "int"
+        "name": "user_id",
+        "type": "long"
       },
       {
         "name": "state",
@@ -828,6 +900,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -856,6 +932,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "state",
         "type": "CallState"
       },
@@ -874,6 +954,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -902,6 +986,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "state",
         "type": "CellDataState"
       },
@@ -923,6 +1011,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "lac",
         "type": "int"
       },
@@ -941,6 +1033,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -969,6 +1065,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "video_id",
         "type": "string"
       },
@@ -990,11 +1090,11 @@
       },
       {
         "name": "duration_watched",
-        "type": "int"
+        "type": "double"
       },
       {
         "name": "data_watched",
-        "type": "float"
+        "type": "double"
       },
       {
         "name": "connection_id",
@@ -1002,11 +1102,11 @@
       },
       {
         "name": "score",
-        "type": "double"
+        "type": "float"
       },
       {
         "name": "score_bolognese",
-        "type": "double"
+        "type": "float"
       },
       {
         "name": "cellular_connected",
@@ -1058,11 +1158,11 @@
     ],
     "fields": [
       {
-        "name": "userId",
-        "type": "int"
+        "name": "timestamp",
+        "type": "long"
       },
       {
-        "name": "timestamp",
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -1087,7 +1187,7 @@
       },
       {
         "name": "data",
-        "type": "float"
+        "type": "double"
       },
       {
         "name": "success",
@@ -1103,11 +1203,11 @@
       },
       {
         "name": "score",
-        "type": "float"
+        "type": "double"
       },
       {
         "name": "score_bolognese",
-        "type": "float"
+        "type": "double"
       },
       {
         "name": "video_duration",
@@ -1171,6 +1271,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "name",
         "type": "string"
       },
@@ -1192,6 +1296,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "state",
         "type": "boolean"
       }
@@ -1209,11 +1317,15 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "component",
         "type": "InformationViewComponent"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
@@ -1221,7 +1333,7 @@
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1238,7 +1350,11 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
@@ -1263,7 +1379,11 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       }
     ]
@@ -1280,19 +1400,23 @@
         "type": "long"
       },
       {
-        "name": "searchType",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "search_type",
         "type": "SearchType"
       },
       {
-        "name": "searchContent",
+        "name": "search_content",
         "type": "string"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1309,15 +1433,19 @@
         "type": "long"
       },
       {
-        "name": "currentVideoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "current_video_id",
         "type": "string"
       },
       {
-        "name": "currentChannelName",
+        "name": "current_channel_name",
         "type": "string"
       },
       {
-        "name": "currentVideoTime",
+        "name": "current_video_time",
         "type": "int"
       },
       {
@@ -1338,15 +1466,19 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "currentVideoTime",
+        "name": "current_video_time",
         "type": "int"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1363,15 +1495,19 @@
         "type": "long"
       },
       {
-        "name": "phoneOrientation",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "phone_orientation",
         "type": "PhoneOrientation"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "video_current_time",
         "type": "int"
       }
     ]
@@ -1388,19 +1524,23 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "state",
         "type": "ControllerState"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "videoCurrentTime",
+        "name": "video_current_time",
         "type": "int"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1417,15 +1557,19 @@
         "type": "long"
       },
       {
-        "name": "timelineState",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "timeline_state",
         "type": "FacebookTimelineState"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1442,15 +1586,19 @@
         "type": "long"
       },
       {
-        "name": "postingState",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "posting_state",
         "type": "FacebookTimelineMessageState"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1467,15 +1615,19 @@
         "type": "long"
       },
       {
-        "name": "recommendationAction",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "recommendation_action",
         "type": "RecommendationWidgetAction"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1492,11 +1644,15 @@
         "type": "long"
       },
       {
-        "name": "channelName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "channel_name",
         "type": "string"
       },
       {
-        "name": "videoIds",
+        "name": "video_ids",
         "type": {
           "type": "array",
           "items": "string"
@@ -1507,7 +1663,7 @@
         "type": "Section"
       },
       {
-        "name": "afterScroll",
+        "name": "after_scroll",
         "type": "boolean"
       }
     ]
@@ -1524,11 +1680,15 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "iid",
         "type": "InterstitialId"
       },
       {
-        "name": "isClicked",
+        "name": "is_clicked",
         "type": "boolean"
       }
     ]
@@ -1542,6 +1702,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -1562,6 +1726,10 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "successful",
         "type": "boolean"
       }
@@ -1579,11 +1747,15 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "channelName",
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1597,6 +1769,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -1616,15 +1792,15 @@
         "type": "int"
       },
       {
-        "name": "numberOfSongs",
+        "name": "number_of_songs",
         "type": "int"
       },
       {
-        "name": "musicService",
+        "name": "music_service",
         "type": "string"
       },
       {
-        "name": "tsAdded",
+        "name": "ts_added",
         "type": "long"
       }
     ]
@@ -1638,6 +1814,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       },
       {
@@ -1661,15 +1841,15 @@
         "type": "string"
       },
       {
-        "name": "tsTaken",
+        "name": "ts_taken",
         "type": "long"
       },
       {
-        "name": "tsAdded",
+        "name": "ts_added",
         "type": "long"
       },
       {
-        "name": "videoService",
+        "name": "video_service",
         "type": "string"
       },
       {
@@ -1690,11 +1870,15 @@
         "type": "long"
       },
       {
-        "name": "fromStorage",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "from_storage",
         "type": "StorageType"
       },
       {
-        "name": "toStorage",
+        "name": "to_storage",
         "type": "StorageType"
       }
     ]
@@ -1711,20 +1895,57 @@
         "type": "long"
       },
       {
-        "name": "algoName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "algo_name",
         "type": "string"
       },
       {
-        "name": "timeSpent",
+        "name": "time_spent",
         "type": "int"
       },
       {
-        "name": "runningState",
+        "name": "running_state",
         "type": "AlgorithRunningState"
       },
       {
         "name": "success",
         "type": "boolean"
+      }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "FeatureWeight",
+    "aliases": [
+      "sen_1003"
+    ],
+    "fields": [
+      {
+        "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "algo_name",
+        "type": "string"
+      },
+      {
+        "name": "feature_name",
+        "type": "string"
+      },
+      {
+        "name": "feature_value",
+        "type": "double"
+      },
+      {
+        "name": "training_time",
+        "type": "long"
       }
     ]
   },
@@ -1740,7 +1961,11 @@
         "type": "long"
       },
       {
-        "name": "channelName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1757,7 +1982,11 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
@@ -1765,7 +1994,7 @@
         "type": "string"
       },
       {
-        "name": "isPrefetched",
+        "name": "is_prefetched",
         "type": "boolean"
       }
     ]
@@ -1782,11 +2011,15 @@
         "type": "long"
       },
       {
-        "name": "currentAllocation",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "current_allocation",
         "type": "int"
       },
       {
-        "name": "newAllocation",
+        "name": "new_allocation",
         "type": "int"
       }
     ]
@@ -1800,6 +2033,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       }
     ]
@@ -1816,11 +2053,15 @@
         "type": "long"
       },
       {
+        "name": "user_id",
+        "type": "long"
+      },
+      {
         "name": "action",
         "type": "SliderAccessAction"
       },
       {
-        "name": "isOpening",
+        "name": "is_opening",
         "type": "boolean"
       }
     ]
@@ -1837,7 +2078,11 @@
         "type": "long"
       },
       {
-        "name": "channelName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1852,6 +2097,10 @@
       {
         "name": "timestamp",
         "type": "long"
+      },
+      {
+        "name": "user_id",
+        "type": "long"
       }
     ]
   },
@@ -1865,6 +2114,10 @@
       {
         "name": "timestamp",
         "type": "long"
+      },
+      {
+        "name": "user_id",
+        "type": "long"
       }
     ]
   },
@@ -1877,6 +2130,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       }
     ]
@@ -1893,15 +2150,19 @@
         "type": "long"
       },
       {
-        "name": "spaceTotal",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "space_total",
         "type": "int"
       },
       {
-        "name": "spaceAvailable",
+        "name": "space_available",
         "type": "int"
       },
       {
-        "name": "spaceAppUses",
+        "name": "space_app_uses",
         "type": "int"
       }
     ]
@@ -1915,6 +2176,10 @@
     "fields": [
       {
         "name": "timestamp",
+        "type": "long"
+      },
+      {
+        "name": "user_id",
         "type": "long"
       }
     ]
@@ -1931,7 +2196,11 @@
         "type": "long"
       },
       {
-        "name": "videoId",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "video_id",
         "type": "string"
       },
       {
@@ -1964,7 +2233,11 @@
         "type": "long"
       },
       {
-        "name": "channelName",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "channel_name",
         "type": "string"
       }
     ]
@@ -1981,15 +2254,19 @@
         "type": "long"
       },
       {
-        "name": "notificationType",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "notification_type",
         "type": "NotificationType"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       },
       {
-        "name": "userAllow",
+        "name": "user_allow",
         "type": "boolean"
       }
     ]
@@ -2006,11 +2283,15 @@
         "type": "long"
       },
       {
-        "name": "notificationType",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "notification_type",
         "type": "NotificationType"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       }
     ]
@@ -2027,11 +2308,15 @@
         "type": "long"
       },
       {
-        "name": "notificationType",
+        "name": "user_id",
+        "type": "long"
+      },
+      {
+        "name": "notification_type",
         "type": "NotificationType"
       },
       {
-        "name": "videoId",
+        "name": "video_id",
         "type": "string"
       }
     ]

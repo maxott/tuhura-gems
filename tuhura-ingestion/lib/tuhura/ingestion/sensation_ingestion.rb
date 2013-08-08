@@ -78,7 +78,7 @@ module Tuhura::Ingestion
             end
 
           when /^sen_24_/
-            index = ["gps", "network"].index(r['provider'].downcase)
+            index = ["gps", "network"].index((r['provider'] || '').downcase)
             unless index.nil?
               r['provider'] = index
             end
@@ -87,6 +87,12 @@ module Tuhura::Ingestion
             unless (video_ids = r['video_ids']).is_a?(Array)
               r['act_rec_conf'] = r['act_rec_conf'].to_i
             end
+            ['duration_video', 'google_serv_on'].each do |n|
+              r[n] = r[n].to_i
+            end
+            ['lat', 'lon'].each do |n|
+              r[n] = r[n].to_f
+            end
 
           when /^sen_40_/
             r['ts_download_complete'] = r['ts_download_complete'].to_i
@@ -94,7 +100,7 @@ module Tuhura::Ingestion
             r['success'] = r['success'].to_i
             r['space_available'] = r['space_available'].to_i
             r['space_total'] = r['space_total'].to_i
-
+            r['file_duration'] = r['file_duration'].to_i
           else
             res = nil
           end
