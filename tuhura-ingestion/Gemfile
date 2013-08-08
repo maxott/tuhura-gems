@@ -15,6 +15,7 @@ unless Dir.exist?('../../tuhura-gems')
 end
 
 gem 'tuhura-common', find_alternative('../tuhura-common', 'git://github.com/maxott/tuhura-gems.git')
+gem 'tuhura-aws', find_alternative('../tuhura-aws', 'git://github.com/maxott/tuhura-gems.git')
 
 # they shouldn't be here
 gem 'logging'

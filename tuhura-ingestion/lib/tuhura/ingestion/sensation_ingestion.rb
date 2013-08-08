@@ -9,6 +9,8 @@ module Tuhura::Ingestion
 
   class SensationIngestion < AbstractIngestion
 
+    DEF_AVRO_FILE = File.join(File.dirname(__FILE__), 'sensations.avro')
+
     def ingest_kafka_message(r, payload)
       r.delete("user_key")
       r.delete("access_token_hash")
@@ -115,8 +117,9 @@ module Tuhura::Ingestion
     def initialize(opts)
       super
 
-      unless af = opts.delete(:avro_file)
-        raise "Missing AVRO mapping file"
+      af = opts.delete(:avro_file) || DEF_AVRO_FILE
+      unless File.readable?(af)
+        raise "Can't read AVRO schema file '#{af}'"
       end
       @avro = {}
       avro = JSON.load(File.open(af))

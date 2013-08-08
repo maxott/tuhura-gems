@@ -22,6 +22,7 @@ module Tuhura::Ingestion
           groups = {}
           msg_cnt = 0
           bm_r.task do
+            #puts ">>>> READ"
             records = @kafka_consumer.consume
             break if records.nil? || records.empty?
             records.each do |m|
