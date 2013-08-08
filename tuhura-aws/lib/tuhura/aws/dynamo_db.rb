@@ -24,7 +24,7 @@ module Tuhura::AWS::DynamoDB
       Table.get(table_name, create_if_missing, schema, self, &get_schema)
     end
 
-    def self.close_all_tables()
+    def self.close()
       Table.close_all
     end
 
