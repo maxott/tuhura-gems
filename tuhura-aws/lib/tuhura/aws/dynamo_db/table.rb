@@ -16,6 +16,7 @@ module Tuhura::AWS::DynamoDB
     TYPE2TYPE = {
       :string => :string,
       :integer => :number,
+      :long => :number,
       :real => :number,
       :double => :number,
       :blob => :binary,
@@ -35,11 +36,23 @@ module Tuhura::AWS::DynamoDB
       unless @table.exists?
         opts = {}
         # schema = {name: schema_name, primary: 'day', range: 'range', cols: schema}
-        hk = schema['primary']
-        opts[:hash_key] = { hk => TYPE2TYPE[cols[hk]] }
-        if rk = schema['range']
-          opts[:range_key] = { rk => TYPE2TYPE[cols[rk]] }
+        cols = schema[:cols]
+        find_type = lambda do |name|
+          unless col = cols.find {|t| t[0] == name}
+            raise "Missing column declaration of key '#{name}'"
+          end
+          TYPE2TYPE[col[1]]
         end
+        unless hk = schema[:primary]
+          raise "Missing primary key in '#{schema}'"
+        end
+        opts[:hash_key] = { hk => find_type.call(hk) }
+        if rk = schema[:range]
+          opts[:range_key] = { rk => find_type.call(rk) }
+        end
+        # puts ">>>> WOULD CREATE TABLE WITH '#{opts}' - #{schema}"
+        # raise
+
         @table = @db.tables.create(table_name, 100, 1000, opts)
         info "CREATING TABLE #{table_name} schema: #{schema} - status: #{@table.status}"
         sleep 1 while @table.status == :creating
@@ -49,6 +62,7 @@ module Tuhura::AWS::DynamoDB
     end
 
     def put(events)
+      #puts "EVENTS>> #{events}"
       start = Time.now
       #items = @table.items
       i = 0
@@ -75,10 +89,11 @@ module Tuhura::AWS::DynamoDB
           @table.batch_put(it)
         rescue Exception => ex
           puts ex
-          puts it.inspect
-          puts @schema
-          (it.map {|r| r['recommendation_id']}.sort).each {|r| puts r}
-
+          puts "--------------"
+          # puts it.inspect
+          # puts "3---------------"
+          # puts @schema
+          # puts "5---------------"
           it.each {|r| puts r}
           raise ex
         end

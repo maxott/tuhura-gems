@@ -39,18 +39,7 @@ module Tuhura::AWS::DynamoDB
     def initialize(opts)
       logger_init(nil, top: false)
       @opts = opts
-#puts "DB: #{opts}"
-#raise "EXIT"
-      # unless  token = opts[:aws_creds]
-        # raise "Missing option ':aws_creds'"
-      # end
-      # key, secret = token.split(':')
-      # co = {
-        # access_key_id: key,
-        # secret_access_key: secret
-      # }.merge(opts[:dynamo_db] || {})
-      # info "Connecting to DynamoDB with '#{co}'"
-      # @db = AWS::DynamoDB.new(co)
+      ::Tuhura::AWS.init # set access creds
       @db = AWS::DynamoDB.new()
     end
 
