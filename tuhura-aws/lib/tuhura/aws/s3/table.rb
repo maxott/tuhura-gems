@@ -72,15 +72,15 @@ module Tuhura::AWS::S3
         raise "Unknown Table Writer '#{opts[:writer]}' - supporting 'avro' and 'csv'"
       end
       @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}_v#{version}")
-      # find file seq no from '#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
-      @file_opened = 0
-      l = @file_prefix.length + 1
-      Dir.glob("#{@file_prefix}*.#{@writer_class.file_ext}") do |f|
-        if (seq = f[l .. -1].split('.')[0].to_i) >= @file_opened
-          @file_opened = seq + 1
-        end
-      end
-      puts "USING #{@file_opened}"
+      # # find file seq no from '#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
+      # @file_opened = 0
+      # l = @file_prefix.length + 1
+      # Dir.glob("#{@file_prefix}*.#{@writer_class.file_ext}") do |f|
+        # if (seq = f[l .. -1].split('.')[0].to_i) >= @file_opened
+          # @file_opened = seq + 1
+        # end
+      # end
+      # puts "USING #{@file_opened}"
       @writer_unused = 0
       @writer = nil
       @monitor = Monitor.new
@@ -94,11 +94,6 @@ module Tuhura::AWS::S3
     end
 
     def put(events)
-      # if @table_name == 'sen_24_w2262'
-        # puts events.map {|e| e[inspect
-        # exit
-      # end
-
       if @no_insert_mode # test
         i = events.length
         info "Would have written #{i} records"
@@ -143,10 +138,9 @@ module Tuhura::AWS::S3
         @writer_unused = 0 # reset inactivity timeout
         unless @writer
           #puts "FILE_NAME: #{file_name}"
-          @file_name = "#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
+          @file_name = "#{@file_prefix}.#{rand(1000000000)}.#{@writer_class.file_ext}"
           info "Opening #{@file_name}"
           @file = File.open(@file_name, 'wb')
-          @file_opened += 1
           @writer = @writer_class.new(@table_name, @schema, @file)
         end
         @writer
