@@ -1,5 +1,6 @@
 
 require 'kafka'
+require 'time'
 
 module Tuhura::Ingestion
 
@@ -17,6 +18,11 @@ module Tuhura::Ingestion
       indv_counts = {}
       bm_r = OML4R::Benchmark.bm('kafka_read')
       bm_w = OML4R::Benchmark.bm('db_write')
+
+      #Adding to see how fast we're ingesting per minute
+      rate_start = Time.now
+      rate_cnt = 0
+
       OML4R::Benchmark.bm('overall', periodic: reporting_interval) do |bm|
         loop do
           groups = {}
@@ -41,6 +47,7 @@ module Tuhura::Ingestion
           bm_r.report
           @logger.info ">>>> Read #{msg_cnt} record(s) - offset: #{@kafka_consumer.offset}"
 
+          
           cnt = 0
           bm_w.task do
             groups.each do |group_id, events|
@@ -54,6 +61,14 @@ module Tuhura::Ingestion
           _kafka_persist_offset(@kafka_consumer.offset)
           bm_w.report
           info ">>>> Wrote #{cnt}/#{total_count} record(s)" if @verbose
+
+          rate_cnt += msg_cnt
+          if (duration = Time.now - rate_start) > 60
+            info "Ingestion rate: #{(1.0 * rate_cnt / duration * 60).to_i} records/min"
+            rate_start += duration
+            rate_cnt = 0
+          end
+
           break if (max_count > 0 && total_count >= max_count)
         end
       end

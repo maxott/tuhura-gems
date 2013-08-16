@@ -17,6 +17,8 @@ module Tuhura::Ingestion
 
       user_id = r['user_id']
       timestamp = r["timestamp"] / 1000
+      info timestamp if @verbose # -v doesn't seem to work yet. Must investigate
+
       r['day'] = ts_day = (timestamp / 86400).to_i
       ts_week = (ts_day / 7).to_i
       ts_month = (ts_day / 24).to_i
