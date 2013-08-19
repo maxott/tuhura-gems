@@ -14,9 +14,16 @@ StartupHelper.def_task :sensation, {
 }
 
 StartupHelper.def_task :user, {
-  :descr => 'Ingest user  data from kafka into a backend',
+  :descr => 'Ingest user data from kafka into a backend',
   :top_dir => File.join(File.dirname(__FILE__), '..'),
   :path => 'lib/tuhura/ingestion/user_ingestion.rb',
+  :ruby => 'ruby'
+}
+
+StartupHelper.def_task :identity, {
+  :descr => 'Ingest identity data from kafka into a backend',
+  :top_dir => File.join(File.dirname(__FILE__), '..'),
+  :path => 'lib/tuhura/ingestion/identity_ingestion.rb',
   :ruby => 'ruby'
 }
 
