@@ -4,13 +4,8 @@ require 'time'
 
 module Tuhura::Ingestion
 
-  module Kafka
+  module KafkaReader
 
-    KAFKA_OPTS = {
-      #offset: -1,
-      host: 'cloud1.tempo.nicta.org.au',
-      state_domain: 'kafka_bridge'  # part of the state prefix - change if private namespace is desired
-    }
 
     def kafka_inject(max_count = -1)
       reporting_interval = 10
@@ -47,7 +42,7 @@ module Tuhura::Ingestion
           bm_r.report
           @logger.info ">>>> Read #{msg_cnt} record(s) - offset: #{@kafka_consumer.offset}"
 
-          
+
           cnt = 0
           bm_w.task do
             groups.each do |group_id, events|
@@ -114,7 +109,7 @@ module Tuhura::Ingestion
         nil
       end
       begin
-        ingest_kafka_message(msg, payload)
+        ingest_message(msg, payload)
       rescue Exception => ex
         @logger.error "While processing message - #{ex}::#{ex.class}"
         @logger.warn ex.backtrace.join("\n\t")

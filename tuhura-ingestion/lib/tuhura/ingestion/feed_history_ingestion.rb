@@ -4,7 +4,7 @@ require 'json'
 require 'tuhura/ingestion/abstract_ingestion'
 
 module Tuhura::Ingestion
-  Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = 'feedhistory0'
+  OPTS[:kafka][:topic] = 'feedhistory0'
   Tuhura::Common::OML::OML_OPTS[:appName] = 'feedhistory_ingestion'
 
   class FeedHistoryIngestion < AbstractIngestion
@@ -55,7 +55,7 @@ module Tuhura::Ingestion
     ]
     #include Tuhura::Common::Sensation
 
-    def ingest_kafka_message(r, payload)
+    def ingest_message(r)
       user_id = r['user_id']
       served = r['served_epoch'].to_i
       ts_day = (served / 86400).to_i

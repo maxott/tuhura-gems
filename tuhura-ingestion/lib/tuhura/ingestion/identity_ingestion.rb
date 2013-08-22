@@ -4,7 +4,7 @@ require 'tuhura/ingestion/abstract_ingestion'
 require 'active_support/core_ext'
 
 module Tuhura::Ingestion
-  Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = 'identity'
+  OPTS[:kafka][:topic] = 'identity'
   Tuhura::Common::OML::OML_OPTS[:appName] = 'identity_ingestion'
 
   # Read identity information from Kafka queues
@@ -21,14 +21,14 @@ module Tuhura::Ingestion
                        ["identity_status_code", :int],
                        ["permissions", :string]
                       ]
-    
-    def ingest_kafka_message(r, payload)
+
+    def ingest_message(r)
       #puts ">>>> #{r['created']} -- #{r['created_epoch']} -- #{r.keys}"
       unless user_id = r['user_id'] and identiy_id = r['identity_id']
         error "Dropping record because of missing data - #{r.inspect}"
       end
       user_id = r['user_id'] = r['user_id'].to_i
-    
+
 
       recs = []
 

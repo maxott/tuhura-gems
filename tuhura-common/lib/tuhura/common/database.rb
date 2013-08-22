@@ -6,7 +6,8 @@ module Tuhura::Common
   module Database
 
     DB_OPTS = {
-      provider: 'dynamo_db',
+      #provider: 'dynamo_db',
+      provider: 's3',
       test_mode: false,
       no_insert: false
     }

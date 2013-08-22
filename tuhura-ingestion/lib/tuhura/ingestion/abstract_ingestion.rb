@@ -2,28 +2,39 @@
 
 require 'tuhura/common/logger'
 require 'tuhura/common/oml'
-require 'tuhura/common/state'
 require 'tuhura/common/database'
 
 require 'tuhura/ingestion'
-require 'tuhura/ingestion/kafka_ingestion'
 
 $default_provider = 'aws'
 
 module Tuhura::Ingestion
 
+  OPTS = {
+    reader: 'json',
+    kafka: {
+      offset: -1,
+      host: 'cloud1.tempo.nicta.org.au',
+      state_domain: 'kafka_bridge'  # part of the state prefix - change if private namespace is desired
+    },
+    json: {
+      skip_lines: 0
+    }
+
+  }
+
   class AbstractIngestion
+
 
     include Tuhura::Common::Logger
     include Tuhura::Common::OML
     include Tuhura::Common::Database
-    include Tuhura::Common::State
-    include Tuhura::Ingestion::Kafka
     # include Tuhura::Common::Zookeeper
     # include Tuhura::Common::HBase
     #enable_logger
 
     def self.create(options = {}, &block)
+      options.merge!(OPTS) {|k, v1, v2| v1 } # reverse hash
       OML4R::init(ARGV, OML_OPTS) do |op|
         op.on( '-D', '--drop-tables', "Drop all table" ) do
           options[:task] = :drop_tables
@@ -31,17 +42,31 @@ module Tuhura::Ingestion
         op.on( '-m', '--max-messages NUM', "Number of messages to process [ALL]" ) do |n|
           options[:max_msgs] = n.to_i
         end
+        op.on( '-r', '--reader READER', "Reader to use for fetching records [#{OPTS[:reader]}]" ) do |r|
+          options[:reader] = r
+        end
         op.separator ""
-        op.separator "Kafka options:"
-        op.on('-o', '--offset NUM', "Offset into Kafka queue [#{KAFKA_OPTS[:offset]}]" ) do |n|
-          Tuhura::Ingestion::Kafka::KAFKA_OPTS[:offset] = n.to_i
+        op.separator "Kafka Reader options:"
+        k_opts = OPTS[:kafka]
+        op.on('-o', '--offset NUM', "Offset into Kafka queue [#{k_opts[:offset]}]" ) do |n|
+          k_opts[:offset] = n.to_i
         end
         #Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = options[:def_topic] if options[:def_topic]
-        op.on('-t', '--topic TOPIC', "Name of Kafka queue to read from [#{Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic]}]" ) do |s|
-          Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = s
+        op.on('-t', '--topic TOPIC', "Name of Kafka queue to read from [#{k_opts[:topic]}]" ) do |s|
+          k_opts[:topic] = s
         end
-        op.on('--host HOST', "Name of Kafka host [#{KAFKA_OPTS[:host]}]" ) do |h|
-          Tuhura::Ingestion::Kafka::KAFKA_OPTS[:host] = h
+        op.on('--host HOST', "Name of Kafka host [#{k_opts[:host]}]" ) do |h|
+          k_opts[:host] = h
+        end
+
+        op.separator ""
+        op.separator "JSON Reader options:"
+        j_opts = OPTS[:json]
+        op.on('-f', '--json-file-name IN_FILE', "Name of file to read json records from" ) do |n|
+          j_opts[:file_name] = n
+        end
+        op.on('--skip-lines NUM', "Number of lines from the input file to skip initially [#{j_opts[:skip_lines]}]" ) do |n|
+          j_opts[:skip_lines] = n.to_i
         end
 
 
@@ -95,8 +120,22 @@ module Tuhura::Ingestion
         when :drop_tables
           drop_tables!
         when :inject
-          kafka_init(@opts[:kafka])
-          kafka_inject(opts[:max_msgs])
+          case opts[:reader]
+          when 'kafka'
+            require 'tuhura/common/state'
+            require 'tuhura/ingestion/kafka_reader'
+            self.class.send(:include, Tuhura::Common::State)  # needed for keeping track of Kafka pointer
+            self.class.send(:include, Tuhura::Ingestion::KafkaReader)
+            kafka_init(opts[:kafka])
+            kafka_inject(opts[:max_msgs])
+          when 'json'
+            require 'tuhura/ingestion/json_file_reader'
+            self.class.send(:include, Tuhura::Ingestion::JsonFileReader)
+            json_file_reader_init(opts[:json])
+            json_file_reader_inject(opts[:max_msgs])
+          else
+            error "Unknown reader '#{opts[:reader]}' - #{opts}"
+          end
         else
           error "Unknown task '#{opts[:task]}'"
           exit(-1)
@@ -143,7 +182,6 @@ module Tuhura::Ingestion
       logger_init()
       oml_init(opts[:oml])
       db_init(opts[:database])
-      state_init(opts[:state])
     end
 
 

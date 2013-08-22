@@ -4,21 +4,20 @@ require 'tuhura/ingestion/abstract_ingestion'
 require 'active_support/core_ext'
 
 module Tuhura::Ingestion
-  Tuhura::Ingestion::Kafka::KAFKA_OPTS[:topic] = 'sensation0'
-  Tuhura::Common::OML::OML_OPTS[:appName] = 'sensation_from_kafka'
+  OPTS[:kafka][:topic] = 'sensation0'
+  Tuhura::Common::OML::OML_OPTS[:appName] = 'sensation_ingestion'
 
   class SensationIngestion < AbstractIngestion
 
     DEF_AVRO_FILE = File.join(File.dirname(__FILE__), 'sensations.avro')
 
-    def ingest_kafka_message(r, payload)
+    def ingest_message(r)
       r.delete("user_key")
       r.delete("access_token_hash")
 
       user_id = r['user_id']
-      timestamp = r["timestamp"] / 1000
+      timestamp = r["timestamp"].to_i / 1000
       info timestamp if @verbose # -v doesn't seem to work yet. Must investigate
-
       r['day'] = ts_day = (timestamp / 86400).to_i
       ts_week = (ts_day / 7).to_i
       ts_month = (ts_day / 24).to_i

@@ -164,7 +164,7 @@ module Tuhura::AWS::S3
 
     def close
       @monitor.synchronize do
-        @writer.close # also closes @file
+        @writer.close if @writer # also closes @file
         @writer = nil
         @file = nil
       end
