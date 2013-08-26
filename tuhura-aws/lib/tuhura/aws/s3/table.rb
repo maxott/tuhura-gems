@@ -156,8 +156,8 @@ module Tuhura::AWS::S3
           #
           @monitor.exit
           file_name = "#{@file_prefix}.#{rand(1000000000)}.#{@writer_class.file_ext}"
-          debug "Opening #{@file_name}"
-          file = _open_file(@file_name)
+          debug "Opening #{file_name}"
+          file = _open_file(file_name)
           @monitor.enter
           # if we are using this table in a multi-threaded environment, some other thread
           # may have created a writer already, so lets check again before commiting
