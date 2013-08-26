@@ -114,6 +114,11 @@ module Tuhura::Ingestion
     end
 
     def work(opts = {}, &block)
+      Signal.trap("SIGINT") do
+        puts "Terminating..."
+        db_close()
+        exit
+      end
 
       if block
         block.call(self)
