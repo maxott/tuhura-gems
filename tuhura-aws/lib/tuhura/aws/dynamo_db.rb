@@ -37,7 +37,8 @@ module Tuhura::AWS::DynamoDB
     # @option opts [String] :aws_access_key_id The subject
     # @option opts [String] :aws_secret_access_key From address
     def initialize(opts)
-      logger_init(nil, top: false)
+      #logger_init(nil, top: false)
+      logger_init
       @opts = opts
       ::Tuhura::AWS.init # set access creds
       @db = AWS::DynamoDB.new()

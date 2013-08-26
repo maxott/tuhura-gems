@@ -6,6 +6,7 @@ require 'monitor'
 module Tuhura::AWS::S3
   class Table
     include Tuhura::Common::Logger
+    extend Tuhura::Common::Logger
 
     # Interval in seconds to call sweep
     #
@@ -18,20 +19,6 @@ module Tuhura::AWS::S3
     @@tables = []
     @@lock = Mutex.new
 
-    Thread.new do
-      loop do
-        @@lock.synchronize do
-          @@tables.each do |t|
-            begin
-              t.sweep
-            rescue Exception => ex
-              puts "Sweep failed: #{ex}"
-            end
-          end
-        end
-        sleep SWEEP_INTERVAL
-      end
-    end
 
     def self.get(table_name, create_if_missing, schema, s3_connector, opts, &get_schema_proc)
       schema ||= get_schema_proc ? get_schema_proc.call(table_name) : {name: table_name}
@@ -44,10 +31,45 @@ module Tuhura::AWS::S3
       end
     end
 
+    def self.sweep(force = false)
+      @@lock.synchronize do
+        unused_epochs = EPOCHS_BEFORE_CLOSE
+        if force
+          # make sure at leat one file is being closed
+          unused_epochs = 0
+          @@tables.each do |t|
+            if (ue = t.unused_epochs) > unused_epochs
+              unused_epochs = ue
+            end
+          end
+        end
+        closing_count = 0
+        @@tables.each do |t|
+          begin
+            closing_count += t.sweep(unused_epochs)
+          rescue Exception => ex
+            puts "Sweep failed: #{ex}"
+          end
+        end
+       if (closing_count > 0)
+         info "Closed #{closing_count} files due to inactivity within the last #{unused_epochs} epochs"
+       end
+      end
+    end
+
+    # Call sweep periodically
+    Thread.new do
+      loop do
+        sleep SWEEP_INTERVAL
+        sweep
+      end
+    end
+
+
     # Constructor
     #
     def initialize(table_name, schema, create_if_missing, s3_connector, opts)
-      logger_init(nil, top: false)
+      logger_init()
       @table_name = table_name
       @head_schema = schema
       @s3_connector = s3_connector
@@ -72,15 +94,6 @@ module Tuhura::AWS::S3
         raise "Unknown Table Writer '#{opts[:writer]}' - supporting 'avro' and 'csv'"
       end
       @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}_v#{version}")
-      # # find file seq no from '#{@file_prefix}.#{@file_opened}.#{@writer_class.file_ext}"
-      # @file_opened = 0
-      # l = @file_prefix.length + 1
-      # Dir.glob("#{@file_prefix}*.#{@writer_class.file_ext}") do |f|
-        # if (seq = f[l .. -1].split('.')[0].to_i) >= @file_opened
-          # @file_opened = seq + 1
-        # end
-      # end
-      # puts "USING #{@file_opened}"
       @writer_unused = 0
       @writer = nil
       @monitor = Monitor.new
@@ -137,29 +150,69 @@ module Tuhura::AWS::S3
       @monitor.synchronize do
         @writer_unused = 0 # reset inactivity timeout
         unless @writer
-          #puts "FILE_NAME: #{file_name}"
-          @file_name = "#{@file_prefix}.#{rand(1000000000)}.#{@writer_class.file_ext}"
-          info "Opening #{@file_name}"
-          @file = File.open(@file_name, 'wb')
+          # DEADLOCK ALERT: As opening a file may first require a sweep of unused
+          # file descriptors to allow for the opening of a new one, we need to
+          # leave the monitor as a sweep may be triggered on hte periodic cleanup thread
+          #
+          @monitor.exit
+          file_name = "#{@file_prefix}.#{rand(1000000000)}.#{@writer_class.file_ext}"
+          debug "Opening #{@file_name}"
+          file = _open_file(@file_name)
+          @monitor.enter
+          # if we are using this table in a multi-threaded environment, some other thread
+          # may have created a writer already, so lets check again before commiting
+          if @writer
+            file.close # ok, don't need it
+            return @writer
+          end
+          @file_name = file_name
+          @file = file
           @writer = @writer_class.new(@table_name, @schema, @file)
         end
         @writer
       end
     end
 
+    def _open_file(name, attempts = 0)
+      if attempts > 5
+        raise "Giving up opening file '#{name}'"
+      end
+      begin
+        debug "Opening #{name}"
+        file = File.open(name, 'wb')
+      rescue Exception => ex
+        if ex.is_a? Errno::EMFILE
+          self.class.sweep(true) # force some file closings and try again
+          return _open_file(name, attempts + 1)
+        end
+        warn "Error while opening file '#{name}' - #{ex}::#{ex.class}"
+      end
+      file
+    end
+
     def get(key)
       raise "Not supported"
     end
 
-    def sweep
+    def unused_epochs
+      @writer_unused
+    end
+
+    # Close the underlying file if this table hasn't been access in
+    # some time to limit the number of open file descriptors. Returns the
+    # number of closed files.
+    #
+    def sweep(unused_epochs)
       @monitor.synchronize do
-        return unless @file
+        return 0 unless @file
         @writer.flush
-        if (@writer_unused += 1) > EPOCHS_BEFORE_CLOSE
-          info "Closing #{@file_name} due to inactivity"
+        if (@writer_unused += 1) > unused_epochs
+          debug "Closing #{@file_name} due to inactivity"
           close
+          return 1
         end
       end
+      return 0
     end
 
     def close

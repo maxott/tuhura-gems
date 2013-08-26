@@ -5,19 +5,19 @@ require 'tuhura/common'
 
 module Tuhura::Common
   module OML
-    
+
     OML_OPTS = {
       appName: File.basename($0, ".*"),
-      domain: 'benchmark', 
-      nodeID: "#{Socket.gethostbyname(Socket.gethostname)[0]}-#{Process.pid}",
+      domain: 'benchmark',
+      nodeID: "#{Socket.gethostname}-#{Process.pid}",
       collect: 'file:-'
     }
-    
+
     def oml_bm(name = nil, opts = {periodic: 1}, &block)
       name ||= @oml_options[:appName]
       OML4R::Benchmark.bm(name, opts, &block)
     end
-    
+
     def oml_parse(options = {}, &block)
       begin
         optparse = nil
@@ -27,7 +27,7 @@ module Tuhura::Common
             puts op
             exit
           end
-          
+
           block.call(op) if block
         end
       rescue OptionParser::InvalidOption, OptionParser::MissingArgument
@@ -35,20 +35,20 @@ module Tuhura::Common
         puts optparse
         abort
       end
-        
+
       missing = options.select{ |key, value| value == :MANDATORY }
       unless missing.empty?
         puts "Missing options: #{missing.keys.join(', ')}"
         puts optparse
         abort
       end
-      
+
     end
-    
+
     def oml_close
-      OML4R::close      
+      OML4R::close
     end
-    
+
     def oml_init(opts = OML_OPTS)
       @oml_options = opts
     end

@@ -15,7 +15,7 @@ module Tuhura::Ingestion
       #Adding to see how fast we're ingesting per minute
       rate_start = Time.now
       rate_cnt = 0
-      line_cnt = 0
+      line_cnt = total_line_cnt = 0
       lines_in_chunk = 100 # how many lines to read before writing to database
       groups = {}
       tables = {}
@@ -50,6 +50,7 @@ module Tuhura::Ingestion
           bm_r.step line_cnt
           bm_r.pause; bm_r.report
           bm.step line_cnt
+          total_line_cnt += line_cnt
           line_cnt = 0
 
           cnt = 0
@@ -68,7 +69,7 @@ module Tuhura::Ingestion
 
           rate_cnt += line_cnt
           if (duration = Time.now - rate_start) > 60
-            info "Ingestion rate: #{(1.0 * rate_cnt / duration * 60).to_i} records/min"
+            info "Ingestion rate: #{(1.0 * rate_cnt / duration * 60).to_i} records/min - lines: #{total_line_cnt}"
             rate_start += duration
             rate_cnt = 0
           end

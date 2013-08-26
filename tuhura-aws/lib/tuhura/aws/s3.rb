@@ -36,9 +36,10 @@ module Tuhura::AWS::S3
     #
     # @param [Hash] opts the options to establish a connection to AWS
     def initialize(opts)
-      puts ">>>> #{opts}"
+      #puts ">>>> #{opts}"
       @opts = Tuhura::AWS::S3::DEFAULTS.merge(opts)
-      logger_init(@opts[:logger], top: false)
+      #logger_init(@opts[:logger], top: false)
+      logger_init()
     end
 
     def no_insert_mode?

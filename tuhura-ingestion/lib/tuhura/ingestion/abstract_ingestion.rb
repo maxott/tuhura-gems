@@ -19,7 +19,8 @@ module Tuhura::Ingestion
     },
     json: {
       skip_lines: 0
-    }
+    },
+    logging: {}
 
   }
 
@@ -106,6 +107,7 @@ module Tuhura::Ingestion
           exit
         end
 
+        Tuhura::Common::Logger.global_init(options[:logging])
         block.call(op) if block
       end
       self.new(options)
@@ -178,7 +180,7 @@ module Tuhura::Ingestion
 
     def initialize(opts)
       @opts = opts
-      puts opts.inspect
+      #puts opts.inspect
       logger_init()
       oml_init(opts[:oml])
       db_init(opts[:database])

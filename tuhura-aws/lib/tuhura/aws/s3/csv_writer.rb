@@ -53,7 +53,7 @@ module Tuhura::AWS::S3
     # @param aliases [Array] - Additional aliases
     #
     def initialize(name, schema, out_stream, aliases = [])
-      logger_init(nil, top: false)
+      logger_init()
 
       @name = name
       @defaults = {}

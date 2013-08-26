@@ -14,7 +14,7 @@ module Tuhura
       op.separator ""
       op.separator "AWS options:"
       op.on('--aws-creds ACCESS:SECRET', "AWS Credentials " ) do |token|
-        puts "AWS_CREDS >>>> #{token}"
+        #puts "AWS_CREDS >>>> #{token}"
         key, secret = token.split(':')
         DEFAULT_CONFIG[:access_key_id] = key
         DEFAULT_CONFIG[:secret_access_key] = secret
