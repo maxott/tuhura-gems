@@ -93,7 +93,9 @@ module Tuhura::AWS::S3
       else
         raise "Unknown Table Writer '#{opts[:writer]}' - supporting 'avro' and 'csv'"
       end
-      @file_prefix = File.join((s3_connector.opts[:data_dir] || ''), "#{@table_name}_v#{version}")
+      dir_name = @table_name.split('_')[0 ... -1].join('_')
+      @file_dir = File.join((s3_connector.opts[:data_dir] || ''), dir_name)
+      @file_prefix = File.join(@file_dir, "#{@table_name}_v#{version}")
       @writer_unused = 0
       @writer = nil
       @monitor = Monitor.new
@@ -179,6 +181,7 @@ module Tuhura::AWS::S3
       end
       begin
         debug "Opening #{name}"
+        Dir.mkdir(@file_dir) unless Dir.exist?(@file_dir)
         file = File.open(name, 'wb')
       rescue Exception => ex
         if ex.is_a? Errno::EMFILE
