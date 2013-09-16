@@ -139,9 +139,9 @@ module Tuhura::OmfRc
     #
     work 'reclaim_tasks' do |res|
       res.children.find_all { |v| v.property.type =~ /tuhura_task/ }.each do |v|
-        puts "CHECK CHILD #{v}: #{v.reclaimable?}"
+        debug "Check child #{v}: reclaimable? #{v.reclaimable?}"
         if v.reclaimable?
-          puts "RELEASE #{v}"
+          info "Release #{v}"
           res.release(v.uid)
         end
       end
