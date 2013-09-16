@@ -22,12 +22,6 @@ module Tuhura::Common
 
       unless inst = @db_tables[table_name]
         inst = @db_tables[table_name] = @db.get_table(table_name, create_if_missing, &get_schema)
-        # unless inst.exists?
-          # raise "Table '#{table_name}' does NOT exist" unless create_if_missing
-          # @logger.info ">>>> CREATING #{table_name}"
-          # inst.create! :f => {}
-          # #inst.create! :f => { :compression => :snappy, :bloomfilter => :row }
-        # end
       end
       inst
     end
