@@ -28,7 +28,7 @@ module Tuhura::Ingestion
       ts_month = (ts_day / 24).to_i
 
       evt_type = r.delete("event_type")
-      r['range'] = "#{user_id}-#{r["timestamp"]}-#{@r.rand(10**3)}"
+      r['range'] = '%05d-%014d-%03d' % [user_id, r["timestamp"], @r.rand(10**3)]
 
       [["sen_#{evt_type}_w#{ts_week}", r]]
     end
