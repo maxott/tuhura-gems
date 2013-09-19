@@ -5,7 +5,6 @@
 # By downloading or using this software you accept the terms and the liability disclaimer in the License.
 #-------------------------------------------------------------------------------
 require 'tuhura/common/logger'
-require 'tuhura/level_db/table'
 
 module Tuhura
   module LevelDB
@@ -22,7 +21,7 @@ module Tuhura
     def self.configure_opts(op)
       op.separator ""
       op.separator "LevelDB options:"
-      op.on('--ldb-dir DIRECTORY', "Directory to store Level database files [#{CONFIG_OPTS[:db_dir]}]" ) do |dir|
+      op.on('--leveldb-dir DIRECTORY', "Directory to store Level database files [#{CONFIG_OPTS[:db_dir]}]" ) do |dir|
         CONFIG_OPTS[:db_dir] = dir
       end
     end
@@ -36,6 +35,7 @@ module Tuhura
       include Tuhura::Common::Logger
 
       def get_table(table_name, create_if_missing = false, schema = nil, &get_schema)
+        require 'tuhura/level_db/table'
         Table.get(table_name, create_if_missing, schema, self, &get_schema)
       end
 

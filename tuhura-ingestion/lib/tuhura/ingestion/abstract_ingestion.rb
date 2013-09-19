@@ -77,10 +77,13 @@ module Tuhura::Ingestion
         end
 
 
-        if $default_provider == 'aws'
+#        if $default_provider == 'aws'
           require 'tuhura/aws'
           Tuhura::AWS.configure_opts(op)
-        end
+#        end
+
+        require 'tuhura/level_db'
+        Tuhura::LevelDB.configure_opts(op)
 
         op.separator ""
         op.separator "Storage options:"
