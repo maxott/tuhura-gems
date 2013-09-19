@@ -59,7 +59,7 @@ module Tuhura::Common
                                            :pattern => '[%d] %-5l %c: %m\n',
                                            :color_scheme => 'default'))
       Logging.logger.root.appenders = 'default_stdout'
-      Logging.logger.root.level = :info
+      Logging.logger.root.level = opts[:level]
       @@logger_factory = lambda {|name| Logging::Logger.new(name)}
     end
 
