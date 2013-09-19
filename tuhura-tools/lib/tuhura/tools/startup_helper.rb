@@ -65,12 +65,12 @@ module Tuhura::Tools
       # opts[:descr] && opts[:top_dir] && opts[:ruby] &&opts[:path]
       gemfile = task[:gemfile] || 'Gemfile'
       if @@install_gems
-        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} #{task[:ruby]} exec bundle install"
+        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} bundle install"
         puts ".. executing #{cmd}" if @@verbose
         @@verbose ? puts(`#{cmd}`) : `#{cmd}`
       end
       if @@update_gems
-        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} #{task[:ruby]} exec bundle update"
+        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} bundle update"
         puts ".. executing #{cmd}" if @@verbose
         @@verbose ? puts(`#{cmd}`) : `#{cmd}`
       end
