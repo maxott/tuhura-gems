@@ -21,7 +21,7 @@ module Tuhura::Ingestion
       rate_start = Time.now
       rate_cnt = 0
       line_cnt = total_line_cnt = 0
-      lines_in_chunk = 100 # how many lines to read before writing to database
+      lines_in_chunk = 1000 # how many lines to read before writing to database
       groups = {}
       tables = {}
       offset = @json_opts[:offset] || 0 # skip that many lines
@@ -29,8 +29,9 @@ module Tuhura::Ingestion
 
       OML4R::Benchmark.bm('overall', periodic: reporting_interval) do |bm|
         bm_r.start
-        File.open(@file_name, 'r').each_line do |line|
+        (@file_name == '-' ? STDIN : File.open(@file_name, 'r')).each_line do |line|
           next if (line_cnt += 1) <= offset
+          line.gsub! /\"_id\" : ObjectId\([ 0-9a-fA-F\"]*\)\,/, '' # remove BJSON ObjectId
           begin
             msg = JSON.parse(line)
           rescue Exception => ex
@@ -58,15 +59,16 @@ module Tuhura::Ingestion
           total_line_cnt += line_cnt
           line_cnt = 0
 
-          cnt = 0
-          bm_w.task do
-            groups.each do |group_id, events|
-              table = tables[group_id] ||= get_table_for_group(group_id)
-              cnt += table.put(events)
-            end
-            bm_w.step cnt
-          end
-          groups = {}
+          cnt = _json_file_write_write(groups, tables, bm_w)
+          # bm_w.task do
+            # groups.each do |group_id, events|
+              # table = tables[group_id] ||= get_table_for_group(group_id)
+              # cnt += table.put(events)
+            # end
+            # bm_w.step cnt
+          # end
+          # groups = {}
+
           total_count += cnt
           rate_cnt += cnt
           bm_w.report
@@ -82,6 +84,7 @@ module Tuhura::Ingestion
           break if (max_count > 0 && total_count >= max_count)
           bm_r.resume
         end
+        total_count += _json_file_write_write(groups, tables, bm_w) # flush out any remaining ones
       end
       bm_r.stop
       bm_w.stop
@@ -92,13 +95,26 @@ module Tuhura::Ingestion
       end
     end
 
+    def _json_file_write_write(groups, tables, bm_w)
+      cnt = 0
+      bm_w.task do
+        groups.each do |group_id, events|
+          table = tables[group_id] ||= get_table_for_group(group_id)
+          cnt += table.put(events)
+        end
+        bm_w.step cnt
+      end
+      groups.clear
+      cnt
+    end
+
     def json_file_reader_init(opts = {})
       @json_opts = opts
       unless @file_name = @json_opts[:file_name]
         raise "Missing 'file_name' option - #@json_opts"
       end
-      unless File.readable?(@file_name)
-        raise "Can't read file '#{file_name}'"
+      if @file_name != '-' && !File.readable?(@file_name)
+        raise "Can't read file '#{@file_name}'"
       end
       info "JsonFileReader options: #{@json_opts}"
     end
