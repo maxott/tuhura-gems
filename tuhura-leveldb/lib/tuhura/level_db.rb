@@ -5,14 +5,14 @@
 # By downloading or using this software you accept the terms and the liability disclaimer in the License.
 #-------------------------------------------------------------------------------
 require 'tuhura/common/logger'
+require 'tuhura/level_db/table'
 
 module Tuhura
   module LevelDB
     @@connector = nil # singleton
 
     def self.create(opts)
-      require 'tuhura/leveldb/table'
-      Table.create(opts)
+      Connector.new(opts)
     end
 
     CONFIG_OPTS = {
@@ -31,6 +31,32 @@ module Tuhura
       CONFIG_OPTS.merge!(opts) {|k, v1, v2| v1 || v2 }
     end
 
+
+    class Connector
+      include Tuhura::Common::Logger
+
+      def get_table(table_name, create_if_missing = false, schema = nil, &get_schema)
+        Table.get(table_name, create_if_missing, schema, self, &get_schema)
+      end
+
+      def close()
+        Table.close_all
+      end
+
+      attr_reader :opts
+
+      # Constructor
+      #
+      # @param [Hash] opts the options to establish a connection to AWS
+      def initialize(opts)
+        @opts = opts
+        #logger_init(@opts[:logger], top: false)
+        logger_init()
+      end
+
+      def no_insert_mode?
+        @opts[:no_insert]
+      end
+    end
   end
 end
-

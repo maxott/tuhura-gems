@@ -13,21 +13,22 @@ module Tuhura::LevelDB
   class Table
     include Tuhura::Common::Logger
     include MonitorMixin
+    extend MonitorMixin
 
     @@tables = {}
 
-    def self.get(table_name, create_if_missing, schema, database = nil, &get_schema_proc)
-      #synchonize do
+    def self.get(table_name, create_if_missing, schema, connector = nil, &get_schema_proc)
+      synchronize do
         unless table = @@tables[table_name]
           if create_if_missing
             schema ||= get_schema_proc ? get_schema_proc.call(table_name) : {name: table_name}
-            table = @@tables[table_name] = self.new(table_name, schema, database)
+            table = @@tables[table_name] = self.new(table_name, schema, connector)
           else
             # TODO: Should I throw an exception or simply return nil
           end
         end
-      #end
-      table
+        table
+      end
     end
 
     def self.close_all
@@ -42,14 +43,16 @@ module Tuhura::LevelDB
 
     # Constructor
     #
-    def initialize(table_name, schema, database)
+    def initialize(table_name, schema, connector)
       super() # initialises MonitorMixin
       logger_init(nil, top: false)
       @table_name = table_name
       @schema = schema
-      @database = database
-      unless @no_insert_mode = database ? database.no_insert_mode? : false
-        @leveldb = ::LevelDB::DB.new File.join(CONFIG_OPTS[:db_dir], table_name)
+      @connector = connector
+      unless @no_insert_mode = connector ? connector.no_insert_mode? : false
+        fname = File.join(CONFIG_OPTS[:db_dir], table_name)
+        debug "opening leveldb database '#{fname}'"
+        @leveldb = ::LevelDB::DB.new(fname)
         unless @primary_key = schema[:primary]
           raise "Missing primary key in '#{schema}'"
         end
@@ -80,6 +83,7 @@ module Tuhura::LevelDB
           else
             key = key.to_s
           end
+          #puts "KEY>>> #{key}"
           @leveldb.put(key, Marshal.dump(e))
         end
       end
@@ -115,7 +119,6 @@ module Tuhura::LevelDB
         block.call(v)
       end
     end
-
 
     def close()
       @leveldb.close

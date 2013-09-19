@@ -81,6 +81,9 @@ module Tuhura::Common
       when 's3'
         require 'tuhura/aws/s3'
         @db = Tuhura::AWS::S3.create(opts)
+      when 'leveldb'
+        require 'tuhura/level_db'
+        @db = Tuhura::LevelDB.create(opts)
       else
         raise "Unknown database provider '#{provider}'"
       end

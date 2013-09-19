@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{tuhura-leveldb!}
 
-  s.add_runtime_dependency 'leveldb' #, "~> 0.0"
+  s.add_runtime_dependency 'leveldb-ruby' #, "~> 0.0"
 
 
 end
