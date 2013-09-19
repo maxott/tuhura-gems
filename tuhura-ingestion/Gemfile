@@ -16,12 +16,13 @@ end
 
 gem 'tuhura-common', find_alternative('../tuhura-common', 'git://github.com/maxott/tuhura-gems.git')
 gem 'tuhura-aws', find_alternative('../tuhura-aws', 'git://github.com/maxott/tuhura-gems.git')
+gem 'tuhura-leveldb', find_alternative('../tuhura-leveldb', 'git://github.com/maxott/tuhura-gems.git')
 
 # they shouldn't be here
 gem 'logging'
 gem 'avro'
 gem 'kafka-rb'
 gem 'aws-sdk'
-gem 'oml4r', :git => 'git://github.com/mytestbed/oml4r.git'
+gem 'oml4r' #, :git => 'git://github.com/mytestbed/oml4r.git'
 gem 'active_support'
 gem 'i18n'
