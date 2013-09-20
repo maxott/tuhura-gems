@@ -33,7 +33,7 @@ module Tuhura::Ingestion
 
     def ingest_message(r)
       recs = @filter_proc.call(r)
-      puts "INGEST>> #{recs}"
+      #puts "INGEST>> #{recs}"
       recs
     end
 
@@ -67,7 +67,7 @@ module Tuhura::Ingestion
       end
       @schema = schema.inject({}){|h, (k,v)| h[k.to_sym] = v; h}
 
-      puts "OPTS>> #{cfg}"
+      #puts "OPTS>> #{cfg}"
     end
 
   end

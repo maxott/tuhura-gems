@@ -19,7 +19,7 @@ module Tuhura::LevelDB
 
     def self.get(table_name, create_if_missing, schema, connector = nil, &get_schema_proc)
       synchronize do
-        puts "TABLE: #{table_name}"
+        #puts "TABLE: #{table_name}"
         if m = table_name.match(/(.*)_[a-z][0-9]*$/)
           # merge all weekly, monthly tables into a single one
           table_name = m[1]
