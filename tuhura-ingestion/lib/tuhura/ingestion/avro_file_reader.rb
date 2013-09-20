@@ -25,7 +25,7 @@ module Tuhura::Ingestion
 
       #Adding to see how fast we're ingesting per minute
       cfg.rate_cnt = 0
-      cfg.lines_in_chunk = 10 # how many records to read before writing to database
+      cfg.lines_in_chunk = 1000 # how many records to read before writing to database
       cfg.groups = {}
       cfg.tables = {}
       cfg.offset = @avro_opts[:offset] || 0 # skip that many records
