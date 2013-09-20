@@ -31,6 +31,7 @@ module Tuhura::Ingestion
       cfg.offset = @avro_opts[:offset] || 0 # skip that many records
       cfg.error_cnt = 0
 
+      cfg.bm_r.start
       OML4R::Benchmark.bm('overall', periodic: reporting_interval) do |bm|
         Dir.glob(@file_name).each do |file_name|
           unless File.readable?(file_name)
@@ -56,7 +57,7 @@ module Tuhura::Ingestion
       rate_start = Time.new
       rate_cnt = 0
 
-      cfg.bm_r.start
+
       f = File.open(file_name, 'r+')
       Avro::DataFile::Reader.new(f, Avro::IO::DatumReader.new).each do |r|
         #puts ">>>>>> #{r.class}-- #{r}"
