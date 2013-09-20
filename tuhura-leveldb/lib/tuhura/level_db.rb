@@ -40,6 +40,7 @@ module Tuhura
       end
 
       def close()
+        require 'tuhura/level_db/table'
         Table.close_all
       end
 

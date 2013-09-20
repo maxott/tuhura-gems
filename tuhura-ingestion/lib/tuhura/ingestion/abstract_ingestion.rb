@@ -26,6 +26,9 @@ module Tuhura::Ingestion
     json: {
       skip_lines: 0
     },
+    avro: {
+      skip_lines: 0
+    },
     logging: {}
 
   }
@@ -52,6 +55,9 @@ module Tuhura::Ingestion
         op.on( '-r', '--reader READER', "Reader to use for fetching records [#{OPTS[:reader]}]" ) do |r|
           options[:reader] = r
         end
+
+        additional_config_parameters(op, options)
+
         op.separator ""
         op.separator "Kafka Reader options:"
         k_opts = OPTS[:kafka]
@@ -76,6 +82,19 @@ module Tuhura::Ingestion
           j_opts[:skip_lines] = n.to_i
         end
 
+        op.separator ""
+        op.separator "AVRO Reader options:"
+        av_opts = OPTS[:avro]
+        op.on('--avro-file-name IN_FILE', "Name of file to read avro records from" ) do |n|
+          av_opts[:file_name] = n
+          options[:reader] = 'avro'
+        end
+        op.on('--avro-event-type EVENT_TYPE', "Name of file to read avro records from" ) do |t|
+          av_opts[:event_type] = t
+        end
+        op.on('--skip-records NUM', "Number of records from the input file to skip initially [#{av_opts[:skip_lines]}]" ) do |n|
+          av_opts[:skip_lines] = n.to_i
+        end
 
 #        if $default_provider == 'aws'
           require 'tuhura/aws'
@@ -122,6 +141,11 @@ module Tuhura::Ingestion
       self.new(options)
     end
 
+    # Allow sub classes to add additional config parameters
+    def self.additional_config_parameters(op, options)
+      # nothing
+    end
+
     def work(opts = {}, &block)
       Signal.trap("SIGINT") do
         puts "Terminating..."
@@ -149,6 +173,11 @@ module Tuhura::Ingestion
             self.class.send(:include, Tuhura::Ingestion::JsonFileReader)
             json_file_reader_init(opts[:json])
             json_file_reader_inject(opts[:max_msgs])
+          when 'avro'
+            require 'tuhura/ingestion/avro_file_reader'
+            self.class.send(:include, Tuhura::Ingestion::AvroFileReader)
+            avro_file_reader_init(opts[:avro])
+            avro_file_reader_inject(opts[:max_msgs])
           else
             error "Unknown reader '#{opts[:reader]}' - #{opts}"
           end

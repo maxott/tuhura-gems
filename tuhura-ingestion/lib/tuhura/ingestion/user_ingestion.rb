@@ -153,4 +153,3 @@ if $0 == __FILE__
   options = {task: :inject, max_msgs: -1, def_topic: 'user'}
   Tuhura::Ingestion::UserIngestion.create(options).work(options)
 end
-

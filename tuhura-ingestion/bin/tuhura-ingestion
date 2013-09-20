@@ -34,6 +34,12 @@ StartupHelper.def_task :feedhistory, {
   :ruby => 'ruby'
 }
 
+StartupHelper.def_task :custom, {
+  :descr => 'Process event stream according to config file',
+  :top_dir => File.join(File.dirname(__FILE__), '..'),
+  :path => 'lib/tuhura/ingestion/custom_ingestion.rb',
+  :ruby => 'ruby'
+}
 
 # StartupHelper.def_task :avro, {
   # :descr => 'Various tools to manipulate AVRO encoded files',

@@ -19,6 +19,7 @@ module Tuhura::LevelDB
 
     def self.get(table_name, create_if_missing, schema, connector = nil, &get_schema_proc)
       synchronize do
+        puts "TABLE: #{table_name}"
         if m = table_name.match(/(.*)_[a-z][0-9]*$/)
           # merge all weekly, monthly tables into a single one
           table_name = m[1]
@@ -54,7 +55,7 @@ module Tuhura::LevelDB
       @schema = schema
       @connector = connector
       unless @no_insert_mode = connector ? connector.no_insert_mode? : false
-        fname = File.join(CONFIG_OPTS[:db_dir], table_name)
+        fname = File.join(CONFIG_OPTS[:db_dir], table_name.to_s)
         debug "opening leveldb database '#{fname}'"
         @leveldb = ::LevelDB::DB.new(fname)
         unless @primary_key = schema[:primary]
