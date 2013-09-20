@@ -1,0 +1,26 @@
+#
+# bin/tuhura-ingestion custom --avro-file-name /tmp/sen_40_w1828_v1.506078812.avr  \
+#      --db-provider leveldb -m 10 --avro-event-type 40 --custom-config-file data/filter_40.yaml
+#
+
+schema:
+  name: download
+  primary: user_id
+  range: ts
+  #cols: USER_SCHEMA
+  version: 1
+
+filter: |
+  lambda do |msg|
+    next [] if (size = msg['data']) <= 0
+    r = {'size' => (size * 1000).to_i} # Bytes
+    ['user_id', 'video_id', 'client_ip', 'device', 'tz'].each do |k|
+      r[k] = msg[k]
+    end
+    r['success'] = (msg['success'] == 1)
+    start = r['start'] = msg['ts_download_start']
+    r['ts'] = 1000 * start
+    duration = r['duration'] = msg['ts_download_complete'] - start
+    r['rate'] = size * 8000 / duration # bits/sec
+    [[:download, r]]
+  end

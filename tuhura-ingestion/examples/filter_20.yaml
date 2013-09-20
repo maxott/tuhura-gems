@@ -1,0 +1,23 @@
+#
+# bin/tuhura-ingestion custom --json-file-name data/sen20-sample.json --db-provider leveldb -m 10 \
+#       --custom-config-file data/filter_20.yaml
+#
+
+schema:
+  name: wifi
+  primary: user_id
+  range: ts
+  #cols: USER_SCHEMA
+  version: 1
+
+filter: |
+  lambda do |m|
+    next [] unless m["ssid"]
+
+    r = {}
+    ["link_usable", 'user_id', 'client_ip', 'ssid', 'bssid', 'tz'].each do |k|
+      r[k] = m[k]
+    end
+    r['ts'] = m['timestamp']
+    [[:wifi, r]]
+  end
