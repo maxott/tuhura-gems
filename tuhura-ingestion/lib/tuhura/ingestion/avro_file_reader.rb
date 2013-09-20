@@ -100,6 +100,7 @@ module Tuhura::Ingestion
         break if (cfg.max_count > 0 && cfg.total_count >= cfg.max_count)
         cfg.bm_r.resume
       end
+      f.close
       cfg.total_count += _avro_file_write_write(cfg.groups, cfg.tables, cfg.bm_w) # flush out any remaining ones
     end
 
