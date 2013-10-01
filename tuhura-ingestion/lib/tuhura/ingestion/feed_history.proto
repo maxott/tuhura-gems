@@ -1,4 +1,6 @@
 
+package tuhura.ingestion;
+
 message FeedHistory {
 
   message Recommendation {
@@ -48,4 +50,8 @@ message FeedHistory {
   optional uint64 served_epoch = 3;
   optional uint64 retrieved_epoch = 4;
   repeated Video videos = 5; 
+}
+
+message FeedHistoryEnvelope {
+  required FeedHistory msg = 30;
 }
