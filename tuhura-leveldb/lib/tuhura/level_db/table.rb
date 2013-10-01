@@ -109,9 +109,9 @@ module Tuhura::LevelDB
     end
 
     # Retrieve records starting at 'from_key' up to (and not including) 'to_key'
-    # and call 'block' with every record. If 'to_key' is nil, set it to 'from_key.succ'
+    # and return as enumerator. If 'to_key' is nil, set it to 'from_key.succ'
     #
-    def each(from_key = nil, to_key = nil, &block)
+    def range(from_key = nil, to_key = nil)
       raise "Can't do that in test mode" if @no_insert_mode # test
 
       opts = {}
@@ -119,10 +119,20 @@ module Tuhura::LevelDB
         from_key = opts[:from] = from_key.to_s
         opts[:to] = to_key ? to_key.to_s : from_key.succ
       end
-      @leveldb.each(opts) do |k, vr|
-        v = Marshal.load(vr)
-        block.call(v)
+      iter = @leveldb.each(opts)
+      Enumerator.new do |y|
+        loop do
+          k, vr = iter.next
+          y << [k, Marshal.load(vr)]
+        end
       end
+    end
+
+    # Retrieve records starting at 'from_key' up to (and not including) 'to_key'
+    # and call 'block' with every record. If 'to_key' is nil, set it to 'from_key.succ'
+    #
+    def each(from_key = nil, to_key = nil, &block)
+      range.each block
     end
 
     def close()
