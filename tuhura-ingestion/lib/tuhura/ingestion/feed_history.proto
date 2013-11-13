@@ -1,5 +1,19 @@
 
-package tuhura.ingestion;
+//-------------------------------------------------------------------------------
+// Copyright (c) 2013 Incoming Media, Inc.
+// This software may be used and distributed solely under the terms of the MIT license (License).
+// You should find a copy of the License in LICENSE.TXT or at http://opensource.org/licenses/MIT.
+// By downloading or using this software you accept the terms and the liability disclaimer in the License.
+//-------------------------------------------------------------------------------
+
+/*
+ * Define the format of the feedhistory information received from the server.
+ *
+ * To generate the corresponding ruby code, run:
+ *   % protoc --ruby_out . feed_history.proto
+ */
+ 
+package tuhura.ingestion.pb;
 
 message FeedHistory {
 
@@ -11,28 +25,27 @@ message FeedHistory {
     optional uint32 comments = 5;
     optional uint32 likes = 6;
     optional uint64 published_epoch = 7;
+    optional uint64 discovered_epoch = 8;
   }
   
   message Video {
     required string video_id = 1;
-
+    optional uint32 plays = 2;
+    optional uint32 dislikes = 3;
+    optional uint32 likes = 4;
+    optional uint64 updated_epoch = 5; // only present until October 2012
+    repeated Recommendation recommendations = 6;
+    
     /* optional string title = ; */
     /* optional boolean prefetchable = ; */
     /* optional string author = ; */
     /* optional string author_name = ; */
     /* optional string author_pic = ; */
     /* optional u32 duration = ; */
-
-    optional uint32 plays = 2;
-
     /* optional u32 comments = ; */
     /* optional string url_stream = ; */
     /* optional string channel = ; */
     /* optional string description = ; */
-
-    optional uint32 dislikes = 3;
-    optional uint32 likes = 4;
-
     /* optional string control_syndicate = ; */
     /* optional string published = ; */
     /* optional string stem_scores = ; */
@@ -40,15 +53,14 @@ message FeedHistory {
     /* optional string stems = ; */
     /* optional u32 stem_scores_version = ; */
     /* optional u32 stems_scored = ; */
-    /* optional intege stems_unscored = ; */
-    
-    repeated Recommendation recommendations = 5;
+    /* optional integer stems_unscored = ; */
   }
 
   required uint64 feedhistory_id = 1;  // each feed may contain multiple video recommendations
-  required uint64 user_id = 2;
-  optional uint64 served_epoch = 3;
-  optional uint64 retrieved_epoch = 4;
+  optional string user_key = 2; // only valid until 20-Oct-2012
+  optional uint64 user_id = 3; // added 20-Oct-2012 
+  optional uint64 served_epoch = 4;
+  /* optional uint64 retrieved_epoch = 4; */
   repeated Video videos = 5; 
 }
 

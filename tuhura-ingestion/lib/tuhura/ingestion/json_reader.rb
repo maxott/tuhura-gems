@@ -8,9 +8,9 @@ require 'time'
 
 module Tuhura::Ingestion
 
-  module JsonFileReader
+  module JsonReader
 
-    def json_file_reader_inject(max_count = -1)
+    def json_reader_inject(max_count = -1)
       reporting_interval = 10
       total_count = 0
       indv_counts = {}
@@ -29,7 +29,7 @@ module Tuhura::Ingestion
 
       OML4R::Benchmark.bm('overall', periodic: reporting_interval) do |bm|
         bm_r.start
-        (@file_name == '-' ? STDIN : File.open(@file_name, 'r')).each_line do |line|
+        @stream.each_line do |line|
           next if (line_cnt += 1) <= offset
           line.gsub! /\"_id\" : ObjectId\([ 0-9a-fA-F\"]*\)\,/, '' # remove BJSON ObjectId
           begin
@@ -59,7 +59,7 @@ module Tuhura::Ingestion
           total_line_cnt += line_cnt
           line_cnt = 0
 
-          cnt = _json_file_write_write(groups, tables, bm_w)
+          cnt = _json_write_write(groups, tables, bm_w)
           # bm_w.task do
             # groups.each do |group_id, events|
               # table = tables[group_id] ||= get_table_for_group(group_id)
@@ -84,7 +84,7 @@ module Tuhura::Ingestion
           break if (max_count > 0 && total_count >= max_count)
           bm_r.resume
         end
-        total_count += _json_file_write_write(groups, tables, bm_w) # flush out any remaining ones
+        total_count += _json_write_write(groups, tables, bm_w) # flush out any remaining ones
       end
       bm_r.stop
       bm_w.stop
@@ -95,7 +95,7 @@ module Tuhura::Ingestion
       end
     end
 
-    def _json_file_write_write(groups, tables, bm_w)
+    def _json_write_write(groups, tables, bm_w)
       cnt = 0
       bm_w.task do
         groups.each do |group_id, events|
@@ -108,15 +108,12 @@ module Tuhura::Ingestion
       cnt
     end
 
-    def json_file_reader_init(opts = {})
+    def json_reader_init(opts = {})
       @json_opts = opts
-      unless @file_name = @json_opts[:file_name]
-        raise "Missing 'file_name' option - #@json_opts"
+      unless @stream = opts.delete(:source_stream)
+        raise "Missing '--json-source-uri' option - #@pb_opts"
       end
-      if @file_name != '-' && !File.readable?(@file_name)
-        raise "Can't read file '#{@file_name}'"
-      end
-      info "JsonFileReader options: #{@json_opts}"
+      info "JsonReader options: #{@json_opts}"
     end
 
   end

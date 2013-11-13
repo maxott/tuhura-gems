@@ -21,16 +21,23 @@ StartupHelper.def_task :user, {
 }
 
 StartupHelper.def_task :identity, {
-  :descr => 'Ingest identity data from kafka into a backend',
+  :descr => 'Ingest identity data into a backend',
   :top_dir => File.join(File.dirname(__FILE__), '..'),
   :path => 'lib/tuhura/ingestion/identity_ingestion.rb',
   :ruby => 'ruby'
 }
 
 StartupHelper.def_task :feedhistory, {
-  :descr => 'Ingest feed history data from kafka into a backend',
+  :descr => 'Ingest feed history data into a backend',
   :top_dir => File.join(File.dirname(__FILE__), '..'),
   :path => 'lib/tuhura/ingestion/feed_history_ingestion.rb',
+  :ruby => 'ruby'
+}
+
+StartupHelper.def_task :feedhistory2, {
+  :descr => 'Ingest feed history data LIGHT into a backend',
+  :top_dir => File.join(File.dirname(__FILE__), '..'),
+  :path => 'lib/tuhura/ingestion/feed_history2_ingestion.rb',
   :ruby => 'ruby'
 }
 

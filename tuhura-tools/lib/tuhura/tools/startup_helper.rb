@@ -74,10 +74,11 @@ module Tuhura::Tools
         puts ".. executing #{cmd}" if @@verbose
         @@verbose ? puts(`#{cmd}`) : `#{cmd}`
       end
+      args_s = "\"#{args.join('" "')}\"" # prevent shell expansion
       if task[:use_bundler] == false
-        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} #{task[:ruby]} -I lib #{task[:path]} #{args.join(' ')}"
+        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} #{task[:ruby]} -I lib #{task[:path]} #{args_s}"
       else
-        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} bundle exec #{task[:ruby]} -I lib #{task[:path]} #{args.join(' ')}"
+        cmd = "cd #{task[:top_dir]}; env BUNDLE_GEMFILE=#{gemfile} bundle exec #{task[:ruby]} -I lib #{task[:path]} #{args_s}"
       end
       puts ".. executing #{cmd}" if @@verbose
       exec cmd
